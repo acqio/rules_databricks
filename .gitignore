@@ -1,0 +1,11 @@
+# Bazel
+.bazel-out
+bazel-bin
+bazel-genfiles
+bazel-out
+bazel-rules_databricks
+bazel-testlogs
+bazel-repo
+
+# Python
+*.pyc

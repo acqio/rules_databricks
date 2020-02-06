@@ -1,0 +1,19 @@
+load("//internal:index.bzl", "databricks_fs_copy", "databricks_lib_install")
+
+filegroup(
+    name = "jar",
+    srcs = ["jython-2.7.2b3.jar"]
+)
+
+databricks_fs_copy(
+    name = "upload",
+    srcs = {
+      ":jar": "dbfs:/FileStore/jars/",
+    },
+)
+
+databricks_lib_install(
+    name = "install",
+    cluster_name = "dev-db-test",
+    deps = ":upload"
+)

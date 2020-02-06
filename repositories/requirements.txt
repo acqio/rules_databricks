@@ -1,0 +1,4 @@
+click==7.0
+configparser==4.0.2
+requests==2.22.0
+tabulate==0.8.6
