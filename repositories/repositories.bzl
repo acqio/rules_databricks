@@ -31,42 +31,46 @@ def repositories():
             name = "bazel_skylib",
             sha256 = "e5d90f0ec952883d56747b7604e2a15ee36e288bb556c3d0ed33e818a4d971f2",
             strip_prefix = "bazel-skylib-1.0.2",
-            urls = ["https://github.com/bazelbuild/bazel-skylib/archive/1.0.2.tar.gz"],
+            urls = [
+                "https://github.com/bazelbuild/bazel-skylib/archive/1.0.2.tar.gz"
+            ],
         )
 
-        http_archive(
-            name = "rules_python",
-            url = "https://github.com/bazelbuild/rules_python/releases/download/0.0.1/rules_python-0.0.1.tar.gz",
-            sha256 = "aa96a691d3a8177f3215b14b0edc9641787abaaa30363a080165d06ab65e1161",
-        )
+    http_archive(
+        name = "rules_python",
+        urls = [
+            "https://github.com/bazelbuild/rules_python/releases/download/0.0.1/rules_python-0.0.1.tar.gz"
+        ],
+        sha256 = "aa96a691d3a8177f3215b14b0edc9641787abaaa30363a080165d06ab65e1161",
+    )
 
-        databricks_cli_version = "0.9.1"
-        http_archive(
-            name = "databricks_cli_src",
-            build_file_content = """
+    databricks_cli_version = "0.9.1"
+    http_archive(
+        name = "databricks_cli_src",
+        build_file_content = """
 filegroup(
-    name = "src",
-    srcs = glob(
-      ["databricks_cli/**/*.py"]),
-    visibility = ["//visibility:public"],
+name = "src",
+srcs = glob(
+    ["databricks_cli/**/*.py"]),
+visibility = ["//visibility:public"],
 )
 """,
-            sha256 = "6b7748da9595b818618ce3810647f900304219122114472e6653c4ffcd302537",
-            strip_prefix = "databricks-cli-%s" % databricks_cli_version,
-            urls = [
-                "https://github.com/databricks/databricks-cli/archive/%s.tar.gz" % databricks_cli_version
-            ],
-        )
+        sha256 = "6b7748da9595b818618ce3810647f900304219122114472e6653c4ffcd302537",
+        strip_prefix = "databricks-cli-%s" % databricks_cli_version,
+        urls = [
+            "https://github.com/databricks/databricks-cli/archive/%s.tar.gz" % databricks_cli_version
+        ],
+    )
 
-        jq_version = "1.6"
-        http_file(
-            name = "jq",
-            executable = True,
-            sha256 = "af986793a515d500ab2d35f8d2aecd656e764504b789b66d7e1a0b727a124c44",
-            urls = [
-                "https://github.com/stedolan/jq/releases/download/jq-%s/jq-linux64" % jq_version
-            ],
-        )
+    jq_version = "1.6"
+    http_file(
+        name = "jq",
+        executable = True,
+        sha256 = "af986793a515d500ab2d35f8d2aecd656e764504b789b66d7e1a0b727a124c44",
+        urls = [
+            "https://github.com/stedolan/jq/releases/download/jq-%s/jq-linux64" % jq_version
+        ],
+    )
 
     native.register_toolchains(
         "@rules_databricks//toolchains/databricks:databricks_linux_toolchain",
