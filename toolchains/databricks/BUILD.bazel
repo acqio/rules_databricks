@@ -30,7 +30,7 @@ toolchain_type(
 databricks_toolchain(
     name = "default_databricks",
     client_config = "~/.databrickscfg",
-    tool_target = "@rules_databricks//repositories:cli",
+    tool_target = "//:repositories:cli",
     profile = "DEFAULT",
     visibility = ["//visibility:public"],
 )
@@ -41,6 +41,6 @@ toolchain(
         "@bazel_tools//platforms:linux",
         "@bazel_tools//platforms:x86_64",
     ],
-    toolchain = "@databricks_config//:toolchain",
+    toolchain = "//:toolchain",
     toolchain_type = ":toolchain_type",
 )
