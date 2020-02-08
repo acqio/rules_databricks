@@ -17,6 +17,13 @@ load(":toolchain.bzl", "databricks_toolchain")
 
 package(default_visibility = ["//visibility:private"])
 
+filegroup(
+    name = "all_files",
+    testonly = True,
+    srcs = glob(["**"]),
+    visibility = ["//visibility:public"],
+)
+
 bzl_library(
     name = "databricks",
     srcs = ["toolchain.bzl"],

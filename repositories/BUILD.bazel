@@ -20,6 +20,13 @@ package(default_visibility = ["//visibility:public"])
 
 licenses(["notice"])  # Apache 2.0
 
+filegroup(
+    name = "all_files",
+    testonly = True,
+    srcs = glob(["**"]),
+    visibility = ["//visibility:public"],
+)
+
 py_binary(
     name = "cli",
     srcs = ["@databricks_cli_src//:src"],

@@ -15,7 +15,19 @@ package(default_visibility = ["//visibility:public"])
 
 licenses(["notice"])  # Apache 2.0
 
+filegroup(
+    name = "all_files",
+    testonly = True,
+    srcs = [
+        "BUILD.bazel",
+        "WORKSPACE",
+        "//toolchain:all_files",
+        "//repositories:all_files",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 alias(
     name = "cli",
-    actual = "//repositories:cli"
+    actual = "@rules_databricks//repositories:cli"
 )
