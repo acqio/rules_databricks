@@ -17,5 +17,5 @@ licenses(["notice"])  # Apache 2.0
 
 alias(
     name = "cli",
-    actual = "@rules_databricks//repositories:cli"
+    actual = "//repositories:cli"
 )
