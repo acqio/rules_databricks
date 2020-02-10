@@ -1,4 +1,4 @@
-def _cli_configure_impl(repository_ctx):
+def _toolchain_configure_impl(repository_ctx):
 
     tool_path = ""
     if repository_ctx.attr.tool_path:
@@ -13,7 +13,7 @@ def _cli_configure_impl(repository_ctx):
 
     repository_ctx.template(
         "BUILD.bazel",
-        Label("@rules_databricks//toolchains/databricks:BUILD.bazel.tpl"),
+        Label("@rules_databricks//toolchain/databricks:BUILD.bazel.tpl"),
         {
             "%{DATABRICKS_CONFIG}": "%s" % client_config,
             "%{DATABRICKS_TOOL_PATH}": "%s" % tool_path,
@@ -25,7 +25,8 @@ def _cli_configure_impl(repository_ctx):
     )
 
 # Repository rule to generate a databricks_toolchain target
-cli_configure = repository_rule(
+toolchain_configure = repository_rule(
+    implementation = _toolchain_configure_impl,
     attrs = {
         "client_config": attr.string(
             mandatory = False,
@@ -50,5 +51,4 @@ cli_configure = repository_rule(
     environ = [
         "PATH",
     ],
-    implementation = _cli_configure_impl,
 )

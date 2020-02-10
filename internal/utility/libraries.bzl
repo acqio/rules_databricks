@@ -1,7 +1,7 @@
 load("//internal/utils:utils.bzl", "utils", "dirname", "join")
 load("//internal/utility:providers.bzl", "FsCopyInfo",)
 
-_DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchains/databricks:toolchain_type"
+_DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
 
 _implicit_deps  = dict(
     {

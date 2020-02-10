@@ -1,8 +1,0 @@
-filegroup(
-    name = "all_files",
-    testonly = True,
-    srcs = glob(["**"]) + [
-        "//toolchains/databricks:all_files",
-    ],
-    visibility = ["//visibility:public"],
-)

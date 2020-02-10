@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-This BUILD file is auto-generated from toolchains/databricks/BUILD.tpl
+This BUILD file is auto-generated from toolchain/databricks/BUILD.tpl
 """
 package(default_visibility = ["//visibility:public"])
 
-load("@rules_databricks//toolchains/databricks:cli_toolchain.bzl", "databricks_toolchain")
+load("@rules_databricks//toolchain/databricks:toolchain.bzl", "databricks_toolchain")
 
 databricks_toolchain(
     name = "toolchain",

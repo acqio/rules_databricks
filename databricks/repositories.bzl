@@ -15,7 +15,7 @@
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 
-load("//toolchains/databricks:cli_configure.bzl", "cli_configure")
+load("//toolchain/databricks:configure.bzl", databricks_toolchain_configure = "toolchain_configure")
 
 def repositories():
     """Download dependencies of container rules."""
@@ -48,7 +48,7 @@ def repositories():
         ],
     )
 
-    native.register_toolchains("@rules_databricks//toolchains/databricks:databricks_linux_toolchain")
+    native.register_toolchains("@rules_databricks//toolchain/databricks:databricks_linux_toolchain")
 
     if "databricks_config" not in excludes:
-        cli_configure(name = "databricks_config")
+        databricks_toolchain_configure(name = "databricks_config")

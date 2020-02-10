@@ -2,7 +2,7 @@ load("//internal/utils:utils.bzl", "utils", "dirname", "join")
 load(
     "//internal/utility:providers.bzl", "FsCopyInfo",
 )
-_DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchains/databricks:toolchain_type"
+_DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
 
 _common_attr  = {
     "_fs_script_tpl": attr.label(
@@ -12,8 +12,8 @@ _common_attr  = {
 }
 
 def _impl(ctx):
-
     toolchain_info = ctx.toolchains[_DATABRICKS_TOOLCHAIN].info
+    print(toolchain_info)
     profile = ctx.toolchains[_DATABRICKS_TOOLCHAIN].info.profile
     python_interpreter = toolchain_info.tool_target[PyRuntimeInfo].interpreter
     program = toolchain_info.tool_target[DefaultInfo].files_to_run.executable.short_path
