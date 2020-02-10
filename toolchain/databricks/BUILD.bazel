@@ -43,7 +43,7 @@ databricks_toolchain(
 )
 
 toolchain(
-    name = "databricks_linux_toolchain",
+    name = "default_linux_toolchain",
     target_compatible_with = [
         "@bazel_tools//platforms:linux",
         "@bazel_tools//platforms:x86_64",

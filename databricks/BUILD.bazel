@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 load("@rules_python//python:defs.bzl", "py_binary")
-load("@databricks_cli_import_dev//:requirements.bzl", dev_requirement = "requirement")
-load("@databricks_cli_import//:requirements.bzl", "requirement")
+# load("@databricks_cli_import_dev//:requirements.bzl", dev_requirement = "requirement")
+load("@databricks_pip_deps//:requirements.bzl", "requirement")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -31,7 +31,7 @@ py_binary(
     name = "cli",
     srcs = ["@databricks_cli_src//:src"],
     deps = [
-        dev_requirement("tox"),
+        # dev_requirement("tox"),
         requirement("click"),
         requirement("configparser"),
         requirement("requests"),

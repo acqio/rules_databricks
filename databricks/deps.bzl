@@ -1,4 +1,4 @@
-# Copyright 2017 The Bazel Authors. All rights reserved.
+# Copyright 2016 The Bazel Authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-package(default_visibility = ["//visibility:public"])
+# Once recursive workspace is implemented in Bazel, this file should cease
+# to exist.
+"""
+Provides functions to pull all external package dependencies of this
+repository.
+"""
 
-licenses(["notice"])  # Apache 2.0
+load(":py_repositories.bzl", "py_deps")
 
-filegroup(
-    name = "all_files",
-    testonly = True,
-    srcs = glob(["**"]),
-    visibility = ["//visibility:public"],
-)
+def deps():
+    py_deps()
