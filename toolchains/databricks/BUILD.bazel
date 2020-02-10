@@ -13,7 +13,7 @@
 # limitations under the License.
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load(":toolchain.bzl", "databricks_toolchain")
+load(":cli_toolchain.bzl", "databricks_toolchain")
 
 package(default_visibility = ["//visibility:private"])
 
@@ -26,7 +26,7 @@ filegroup(
 
 bzl_library(
     name = "databricks",
-    srcs = ["toolchain.bzl"],
+    srcs = glob(["*.bzl"]),
     visibility = ["//visibility:public"],
 )
 
