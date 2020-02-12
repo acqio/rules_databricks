@@ -14,7 +14,7 @@
 """Rules to load all dependencies of rules_databricks."""
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
-
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("//toolchain/databricks:configure.bzl", databricks_toolchain_configure = "toolchain_configure")
 
 def repositories():
@@ -42,6 +42,15 @@ def repositories():
             ],
         )
 
+    if "subpar" not in excludes:
+
+        git_repository(
+            name = "subpar",
+            remote = "https://github.com/google/subpar",
+            commit = "9fae6b63cfeace2e0fb93c9c1ebdc28d3991b16f",
+            shallow_since = "1565833028 -0400"
+        )
+
     if "jq" not in excludes:
 
         http_file(
@@ -53,15 +62,17 @@ def repositories():
             ],
         )
 
-    if "databricks_cli_src" not in excludes:
+    if "databricks_src" not in excludes:
         http_archive(
-            name = "databricks_cli_src",
+            name = "databricks_src",
             build_file_content = """
+package(default_visibility = ["//visibility:public"])
 filegroup(
-name = "src",
-srcs = glob(
-    ["databricks_cli/**/*.py"]),
-visibility = ["//visibility:public"],
+    name = "src",
+    srcs = glob(
+            ["databricks_cli/**/*.py"],
+        ),
+    visibility = ["//visibility:public"],
 )
 """,
             sha256 = "6b7748da9595b818618ce3810647f900304219122114472e6653c4ffcd302537",

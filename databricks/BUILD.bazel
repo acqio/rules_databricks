@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-load("@rules_python//python:defs.bzl", "py_binary")
-# load("@databricks_cli_import_dev//:requirements.bzl", dev_requirement = "requirement")
+load("@rules_python//python:defs.bzl", "py_runtime_pair", "py_library", "py_binary")
+load("@subpar//:subpar.bzl", "parfile", "par_binary")
 load("@databricks_pip_deps//:requirements.bzl", "requirement")
 
 package(default_visibility = ["//visibility:public"])
@@ -22,16 +22,72 @@ licenses(["notice"])  # Apache 2.0
 filegroup(
     name = "all_files",
     testonly = True,
-    srcs = glob(["**"]) +
-        ["//databricks/py:all_files"],
+    srcs = glob(["**"]),
     visibility = ["//visibility:public"],
 )
 
-py_binary(
+# par_binary(
+#     name = "cli",
+#     srcs = ["@databricks_src//:src"],
+#     deps = [
+#         requirement("click"),
+#         requirement("configparser"),
+#         requirement("requests"),
+#         requirement("urllib3"),
+#         requirement("chardet"),
+#         requirement("certifi"),
+#         requirement("tabulate"),
+#     ],
+#     visibility = ["//visibility:public"],
+#     python_version = "PY2",
+#     main = "databricks_src/databricks_cli/cli.py",
+# )
+
+
+# py_library(
+#     name = "dkb_lib",
+#     srcs = ["@databricks_src//:src"],
+#     deps = [
+#         requirement("click"),
+#         requirement("configparser"),
+#         requirement("requests"),
+#         requirement("urllib3"),
+#         requirement("chardet"),
+#         requirement("certifi"),
+#         requirement("tabulate"),
+#     ],
+#     # srcs_version = "PY2AND3",
+# )
+
+# py_binary(
+#     name = "cli",
+#     srcs = ["@databricks_src//:databricks_cli/cli.py"],
+#     python_version = "PY2",
+#     main = "@databricks_src//:databricks_cli/cli.py",
+#     deps = [":dkb_lib"],
+# )
+
+# # Compile the compiler while carefully avoiding a circular dependency
+# parfile(
+#     name = "cli.par",
+#     src = ":cli",
+#     compiler = ":cli",
+#     default_python_version = "PY2",
+#     main = "@databricks_src//:databricks_cli/cli.py",
+# )
+
+py_runtime(
+    name = "py_runtime",
+    interpreter_path = select({
+        "@bazel_tools//tools/python:PY2": "/usr/bin/python2",
+        "@bazel_tools//tools/python:PY3": "/usr/bin/python3",
+    }),
+)
+
+par_binary(
     name = "cli",
-    srcs = ["@databricks_cli_src//:src"],
+    srcs = ["@databricks_src//:src"],
     deps = [
-        # dev_requirement("tox"),
         requirement("click"),
         requirement("configparser"),
         requirement("requests"),
@@ -41,6 +97,6 @@ py_binary(
         requirement("tabulate"),
     ],
     visibility = ["//visibility:public"],
-    # python_version = "PY2",
-    main = "databricks_cli_src/databricks_cli/cli.py",
+    python_version = "PY2",
+    main = "@databricks_src//:databricks_cli/cli.py",
 )

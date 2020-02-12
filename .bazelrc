@@ -1,3 +1,15 @@
-build --extra_toolchains=@rules_python//python:autodetecting_toolchain_nonstrict
-run --extra_toolchains=@rules_python//python:autodetecting_toolchain_nonstrict
-test --extra_toolchains=@rules_python//python:autodetecting_toolchain_nonstrict
+build --host_force_python=PY2 \
+  --python_top=//databricks:py_runtime \
+  --incompatible_use_python_toolchains=false
+run --host_force_python=PY2 \
+  --python_top=//databricks:py_runtime \
+  --incompatible_use_python_toolchains=false
+test --host_force_python=PY2 \
+  --python_top=//databricks:py_runtime \
+  --incompatible_use_python_toolchains=false
+
+# --incompatible_disable_deprecated_attr_params=false \
+#    --incompatible_remove_old_python_version_api=false \
+#    --incompatible_depset_is_not_iterable=false \
+#    --incompatible_new_actions_api=false \
+#    --incompatible_no_support_tools_in_action_inputs=false

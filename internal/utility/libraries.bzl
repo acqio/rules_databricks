@@ -1,12 +1,12 @@
 load("//internal/utils:utils.bzl", "utils", "dirname", "join")
-load("//internal/utility:providers.bzl", "FsCopyInfo",)
+load("//internal/utils:providers.bzl", "FsInfo")
 
 _DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
 
 _implicit_deps  = dict(
     {
-        "_lib_sh_tpl": attr.label(
-          default = Label("//internal/utility:lib.sh.tpl"),
+        "_libraries_sh_tpl": attr.label(
+          default = Label("//internal/utility:libraries.sh.tpl"),
           allow_single_file = True,
         )
     }
@@ -26,13 +26,13 @@ def _impl(ctx):
 
     cmd = '; '.join([
         "echo '$PYTHON $CLI $CLI_OPTIONS $CLI_COMMAND --cluster-id $CLUSTER_ID --jar %s'" % dbfs_file
-            for dbfs_file in ctx.attr.deps[FsCopyInfo].dbfs_file_path
+            for dbfs_file in ctx.attr.deps[FsInfo].dbfs_file_path
         ])
 
     ctx.actions.expand_template(
         is_executable = True,
         output = ctx.outputs.executable,
-        template = ctx.file._lib_sh_tpl,
+        template = ctx.file._libraries_sh_tpl,
         substitutions = {
             "%{PYTHON}": python_interpreter.short_path,
             "%{CLI}": databricks_cli,
@@ -53,7 +53,7 @@ def _impl(ctx):
             ),
         ]
 
-lib_install = rule(
+_libraries = rule(
     implementation = _impl,
     executable = True,
     toolchains = [_DATABRICKS_TOOLCHAIN],
@@ -62,7 +62,7 @@ lib_install = rule(
         {
             "deps": attr.label(
                 mandatory = True,
-                providers = [FsCopyInfo]
+                providers = [FsInfo]
             ),
             "cluster_name": attr.string(
                 mandatory = True
@@ -70,3 +70,17 @@ lib_install = rule(
         },
     ),
 )
+
+
+def libraries (name, **kwargs):
+
+    deps = kwargs.get("deps")
+    cluster_name = kwargs.get("cluster_name")
+    print(name)
+    print(cluster_name)
+    print(deps)
+    _libraries(
+        name = name + ".cp",
+        cluster_name = cluster_name,
+        deps = deps
+    )

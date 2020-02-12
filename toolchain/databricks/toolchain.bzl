@@ -25,7 +25,6 @@ DataBricksToolchainInfo = provider(
                          "home directory will be used.",
         "tool_path": "Path to the databricks executable",
         "tool_target": "A databricks cli executable target built from source or downloaded.",
-        "profile": "The name profile to client_config using",
         "jq_tool_target": "A jq executable target to downloaded.",
     },
 )
@@ -36,7 +35,6 @@ def _databricks_toolchain_impl(ctx):
             client_config = ctx.attr.client_config,
             tool_path = ctx.attr.tool_path,
             tool_target = ctx.attr.tool_target,
-            profile = ctx.attr.profile,
             jq_tool_target = ctx.attr.jq_tool_target
         ),
     )
@@ -62,9 +60,6 @@ databricks_toolchain = rule(
             doc = "Target to build databicks_cli from source.",
             executable = True,
             cfg = "host",
-        ),
-        "profile": attr.string(
-            doc = ""
         ),
         "jq_tool_target": attr.label(
             doc = "Target to build jq from source.",

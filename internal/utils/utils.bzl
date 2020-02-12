@@ -54,6 +54,31 @@ def join(directory, path):
         return path
     return directory + "/" + path
 
+
+def join_path(directory, path):
+    """Compute the relative data path prefix from the data_path attribute.
+    Args:
+      directory: The relative directory to compute path from
+      path: The path to append to the directory
+    Returns:
+      The relative data path prefix from the data_path attribute
+    """
+    if directory.startswith("/"):
+        directory = directory[1:]
+    elif not directory.endswith("/"):
+        directory = directory + "/"
+    else:
+        directory = directory
+
+    if path.startswith("/"):
+        path = path[1:]
+    elif not path.endswith("/"):
+        path = path + "/"
+    else:
+        path = path
+
+    return directory + path
+
 def dirname(path):
     """Returns the directory's name.
     Args:

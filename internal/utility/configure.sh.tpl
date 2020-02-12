@@ -15,15 +15,18 @@
 # limitations under the License.
 set -e
 
-PYTHON="%{PYTHON}"
 CLI="%{CLI}"
 CLI_OPTIONS="%{CLI_OPTIONS}"
 CLI_COMMAND="%{CLI_COMMAND}"
 CLUSTER_NAME="%{CLUSTER_NAME}"
 JQ_PATH="%{JQ_PATH}"
+OUTPUT="%{CLUSTER_INFO_JSONFILE}"
 # tree -d
 
-CLUSTER_ID=$($PYTHON $CLI $CLI_OPTIONS clusters list  --output JSON | \
- $JQ_PATH -r '(.clusters[] | select (.cluster_name=="'$CLUSTER_NAME'")).cluster_id')
+CLUSTER_CONFIG=$($PYTHON $CLI $CLI_OPTIONS clusters list  --output JSON | \
+ $JQ_PATH -r '(.clusters[] | select (.cluster_name=="'$CLUSTER_NAME'"))')
 
-%{CMD};
+echo "estou aqui"
+echo $CLUSTER_CONFIG
+
+# echo 'algumacoisa' > $OUTPUT

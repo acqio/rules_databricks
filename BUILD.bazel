@@ -29,5 +29,5 @@ filegroup(
 
 alias(
     name = "cli",
-    actual = "@rules_databricks//databricks:cli"
+    actual = "@rules_databricks//databricks:cli.par"
 )

@@ -1,104 +1,130 @@
-load("//internal/utils:utils.bzl", "utils", "dirname", "join")
-load(
-    "//internal/utility:providers.bzl", "FsCopyInfo",
-)
+load("//internal/utils:utils.bzl", "utils", "dirname", "join_path")
+load("//internal/utility:configure.bzl", "configure")
+load("//internal/utils:providers.bzl", "FsInfo", "ConfigureInfo")
+load("//internal/utils:common.bzl", "DBFS_PROPERTIES", "DATABRICKS_API_COMMAND_ALLOWED")
 _DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
 
-_common_attr  = {
-    "_fs_script_tpl": attr.label(
-        default = Label("//internal/utility:fs.sh.tpl"),
-        allow_single_file = True,
-    )
-}
+def _aspect_srcs(ctx):
 
-def _impl(ctx):
-    toolchain_info = ctx.toolchains[_DATABRICKS_TOOLCHAIN].info
-    print(toolchain_info)
-    profile = ctx.toolchains[_DATABRICKS_TOOLCHAIN].info.profile
-    python_interpreter = toolchain_info.tool_target[PyRuntimeInfo].interpreter
-    program = toolchain_info.tool_target[DefaultInfo].files_to_run.executable.short_path
-
-    runfiles = utils.runfiles(
-        ctx,
-        utils.runfiles(ctx, toolchain_info.tool_target[DefaultInfo].default_runfiles, ctx.files.srcs),
-        [python_interpreter]
-    )
-    cmd=[]
-    FsCopyInfo_dbfs_dest_files=[]
-
-
-    args = ctx.actions.args
-    src_path_prefix = "bazel/"
-
-    for (label, value) in ctx.attr.srcs.items():
-        dbfs_dest = value
-        src_dirname=""
-        for src in label.files.to_list():
-            src_dirname = src.dirname
-            src_dbfs_dest = dbfs_dest + src_path_prefix + src.path
-            FsCopyInfo_dbfs_dest_files.append(src_dbfs_dest)
-            cmd.append(
-                ' '.join([
-                        "${PYTHON_WRAPPER}",
-                        "${DATABRICK_CLI_PATH}",
-                        "fs cp",
-                        "${DATABRICK_CLI_OPTIONS}",
-                        "--overwrite",
-                        src.path,
-                        src_dbfs_dest
-                    ])
-            )
-
-        src_dirname_dbfs_dest = dbfs_dest + src_path_prefix + src_dirname
-        # print (src_dirname_dbfs_dest)
-        cmd.append(
-            ' '.join([
-                    "${PYTHON_WRAPPER}",
-                    "${DATABRICK_CLI_PATH}",
-                    "fs ls",
-                    "${DATABRICK_CLI_OPTIONS}",
-                    "--absolute -l",
-                    src_dirname_dbfs_dest
-                ])
+    dbfs_dest = join_path(DBFS_PROPERTIES["dbfs_path_jars"], DBFS_PROPERTIES["dbfs_filepath_prefix"])
+    dictionary = []
+    for src in ctx.files.srcs:
+        dictionary.append(dict({
+                "bazel_srcs": src,
+                "dbfs_srcs_path": (dbfs_dest + src.path),
+                "dbfs_srcs_dirname": (dbfs_dest + src.dirname)
+            })
         )
 
+    return dictionary
+
+
+_common_attr  = {
+    "_script_tpl": attr.label(
+        default = Label("//internal/utility:fs.sh.tpl"),
+        allow_single_file = True,
+    ),
+    "_api": attr.string(
+        default = "fs",
+    ),
+    "srcs": attr.label_list(
+        mandatory = True,
+        allow_files = True,
+        # allow_files = [".jar"],
+        allow_empty = False,
+    ),
+    "configure": attr.label(
+        mandatory = True,
+        providers = [ConfigureInfo]
+    ),
+}
+
+def _common_properties(ctx):
+
+    toolchain_info = ctx.toolchains[_DATABRICKS_TOOLCHAIN].info
+    jq_info = toolchain_info.jq_tool_target[DefaultInfo]
+
+    return struct(
+        toolchain_info = toolchain_info,
+        toolchain_info_file_list = toolchain_info.tool_target.files.to_list(),
+        profile = ctx.attr.configure[ConfigureInfo].profile,
+        cli = toolchain_info.tool_target[DefaultInfo].files_to_run.executable.short_path,
+        cluster_name = ctx.attr.configure[ConfigureInfo].cluster_name,
+        jq_info =  jq_info,
+        jq_info_file_list =  jq_info.files.to_list()
+    )
+
+def _common_impl(ctx):
+    properties = _common_properties(ctx)
+    aspects = _aspect_srcs(ctx)
+    api = ctx.attr._api
+    cmd=[]
+
+    if not ctx.attr._command in "ls":
+        cmd = [
+            "${CLI} ${CLI_COMMAND} --overwrite --debug %s %s" % (
+                aspect["bazel_srcs"].path , aspect["dbfs_srcs_path"])
+            for aspect in aspects
+        ]
+
+    cmd.append("${CLI} %s ls --absolute -l %s" % (api, aspects[0]["dbfs_srcs_dirname"]))
     ctx.actions.expand_template(
         is_executable = True,
         output = ctx.outputs.executable,
-        template = ctx.file._fs_script_tpl,
+        template = ctx.file._script_tpl,
         substitutions = {
-            "%{PYTHON_WRAPPER}": python_interpreter.short_path,
-            "%{DATABRICK_CLI_PATH}": program,
-            "%{DATABRICK_CLI_OPTIONS}": "--profile %s" % profile,
+            "%{CLI}": properties.cli,
+            "%{PROFILE}": properties.profile,
+            "%{CLUSTER_NAME}": properties.cluster_name,
+            "%{CLI_COMMAND}": "%s %s" % (api, ctx.attr._command),
             "%{CMD}": '; \n#'.join(cmd)
         }
     )
 
     return [
             DefaultInfo(
-                runfiles = runfiles,
-                files = depset([ctx.outputs.executable]),
+                runfiles = ctx.runfiles(
+                    files = properties.toolchain_info_file_list + properties.jq_info_file_list + ctx.files.srcs
+                ),
             ),
-            FsCopyInfo(
-                srcs = ctx.files.srcs,
-                dbfs_file_path = FsCopyInfo_dbfs_dest_files,
+            FsInfo(
+                srcs = [aspect["bazel_srcs"] for aspect in aspects],
+                dbfs_file_path = [aspect["dbfs_srcs_path"] for aspect in aspects],
             )
         ]
 
 
-fs_copy = rule(
-    implementation = _impl,
+_fs_cp = rule(
+    implementation = _common_impl,
     executable = True,
-    toolchains = [_DATABRICKS_TOOLCHAIN,],
+    toolchains = [_DATABRICKS_TOOLCHAIN],
     attrs = utils.add_dicts(
         _common_attr,
         {
-            "srcs": attr.label_keyed_string_dict(
-                mandatory = True,
-                allow_files = True,
-                # allow_files = [".jar"],
-                allow_empty = False
-            ),
+            "_command": attr.string(default = "cp")
         },
     ),
 )
+
+_fs_ls = rule(
+    executable = True,
+    toolchains = [_DATABRICKS_TOOLCHAIN],
+    implementation = _common_impl,
+    attrs = utils.add_dicts(
+        _common_attr,
+        {
+            "_command": attr.string(default = "ls")
+        },
+    ),
+)
+
+def fs(name, **kwargs):
+
+    if "directory" in kwargs:
+        if not kwargs["directory"].strip():
+            fail ("The directory attribute cannot be an empty string.")
+
+    _fs_ls(name = name, **kwargs)
+    _fs_ls(name = name + ".ls", **kwargs)
+
+    _fs_cp(name = name + ".cp",**kwargs)

@@ -38,7 +38,6 @@ databricks_toolchain(
     name = "default_toolchain_impl",
     client_config = "~/.databrickscfg",
     tool_target = "@rules_databricks//databricks:cli",
-    profile = "DEFAULT2",
     visibility = ["//visibility:public"],
 )
 

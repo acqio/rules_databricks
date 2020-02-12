@@ -1,4 +1,6 @@
-# Copyright 2018 The Bazel Authors. All rights reserved.
+#!/usr/bin/env sh
+
+# Copyright 2017 The Bazel Authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,17 +13,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""
-This BUILD file is auto-generated from toolchain/databricks/BUILD.tpl
-"""
-package(default_visibility = ["//visibility:public"])
+set -e
 
-load("@rules_databricks//toolchain/databricks:toolchain.bzl", "databricks_toolchain")
+CLI="%{CLI}"
+CLI_OPTIONS="%{CLI_OPTIONS}"
+CLI_COMMAND="%{CLI_COMMAND}"
+CLUSTER_NAME="%{CLUSTER_NAME}"
+JQ_PATH="%{JQ_PATH}"
+# tree -d
 
-databricks_toolchain(
-    name = "toolchain",
-    client_config = "%{DATABRICKS_CONFIG}",
-    tool_path = "%{DATABRICKS_TOOL_PATH}",
-    tool_target = "%{DATABRICKS_TOOL_TARGET}",
-    jq_tool_target = "%{JQ_TOOL_TARGET}",
-)
+CLUSTER_ID=$($PYTHON $CLI $CLI_OPTIONS clusters list  --output JSON | \
+ $JQ_PATH -r '(.clusters[] | select (.cluster_name=="'$CLUSTER_NAME'")).cluster_id')
+
+%{CMD};

@@ -24,6 +24,7 @@ bzl_library(
 )
 
 exports_files([
+  "configure.sh.tpl",
   "fs.sh.tpl",
   "lib.sh.tpl"
 ])

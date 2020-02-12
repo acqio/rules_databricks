@@ -7,8 +7,7 @@ def _toolchain_configure_impl(repository_ctx):
         tool_path = repository_ctx.which("databricks")
 
     client_config = repository_ctx.attr.client_config or "~/.databrickscfg"
-    profile = repository_ctx.attr.profile or "DEFAULT"
-    tool_target = "@rules_databricks//databricks:cli"
+    tool_target = "@rules_databricks//databricks:cli.par"
     jq_tool_target = "@jq//file:file"
 
     repository_ctx.template(
@@ -18,7 +17,6 @@ def _toolchain_configure_impl(repository_ctx):
             "%{DATABRICKS_CONFIG}": "%s" % client_config,
             "%{DATABRICKS_TOOL_PATH}": "%s" % tool_path,
             "%{DATABRICKS_TOOL_TARGET}": tool_target,
-            "%{DATABRICKS_PROFILE}": "%s" % profile,
             "%{JQ_TOOL_TARGET}": "%s" % jq_tool_target
         },
         False,
@@ -43,10 +41,6 @@ toolchain_configure = repository_rule(
                   "be searched for in the path. If not available, running commands " +
                   "that require databricks (e.g., incremental load) will fail.",
         ),
-        "profile": attr.string(
-            mandatory = False,
-            doc = ""
-        )
     },
     environ = [
         "PATH",
