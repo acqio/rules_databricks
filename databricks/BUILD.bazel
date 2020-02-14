@@ -26,56 +26,6 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
-# par_binary(
-#     name = "cli",
-#     srcs = ["@databricks_src//:src"],
-#     deps = [
-#         requirement("click"),
-#         requirement("configparser"),
-#         requirement("requests"),
-#         requirement("urllib3"),
-#         requirement("chardet"),
-#         requirement("certifi"),
-#         requirement("tabulate"),
-#     ],
-#     visibility = ["//visibility:public"],
-#     python_version = "PY2",
-#     main = "databricks_src/databricks_cli/cli.py",
-# )
-
-
-# py_library(
-#     name = "dkb_lib",
-#     srcs = ["@databricks_src//:src"],
-#     deps = [
-#         requirement("click"),
-#         requirement("configparser"),
-#         requirement("requests"),
-#         requirement("urllib3"),
-#         requirement("chardet"),
-#         requirement("certifi"),
-#         requirement("tabulate"),
-#     ],
-#     # srcs_version = "PY2AND3",
-# )
-
-# py_binary(
-#     name = "cli",
-#     srcs = ["@databricks_src//:databricks_cli/cli.py"],
-#     python_version = "PY2",
-#     main = "@databricks_src//:databricks_cli/cli.py",
-#     deps = [":dkb_lib"],
-# )
-
-# # Compile the compiler while carefully avoiding a circular dependency
-# parfile(
-#     name = "cli.par",
-#     src = ":cli",
-#     compiler = ":cli",
-#     default_python_version = "PY2",
-#     main = "@databricks_src//:databricks_cli/cli.py",
-# )
-
 py_runtime(
     name = "py_runtime",
     interpreter_path = select({

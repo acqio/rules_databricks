@@ -60,9 +60,12 @@ _libraries = rule(
     attrs = utils.add_dicts(
         _implicit_deps,
         {
-            "deps": attr.label(
-                mandatory = True,
+            "jars_dbfs": attr.label(
+                mandatory = False,
                 providers = [FsInfo]
+            ),
+            "maven": attr.string_dict(
+                mandatory = False,
             ),
             "cluster_name": attr.string(
                 mandatory = True
@@ -74,13 +77,4 @@ _libraries = rule(
 
 def libraries (name, **kwargs):
 
-    deps = kwargs.get("deps")
-    cluster_name = kwargs.get("cluster_name")
-    print(name)
-    print(cluster_name)
-    print(deps)
-    _libraries(
-        name = name + ".cp",
-        cluster_name = cluster_name,
-        deps = deps
-    )
+    _libraries(name = name + ".install",**kwargs)
