@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/bash
 
 # Copyright 2017 The Bazel Authors. All rights reserved.
 #
@@ -13,20 +13,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-set -e
+set -euo pipefail
+tree
 
-PYTHON="%{PYTHON}"
-CLI="%{CLI}"
-CLI_OPTIONS="%{CLI_OPTIONS}"
-CLI_COMMAND="%{CLI_COMMAND}"
-CLUSTER_NAME="%{CLUSTER_NAME}"
-JQ_PATH="%{JQ_PATH}"
-OUTPUT="%{JSON_CLUSTER_INFO}"
-# tree -d
-
-CLUSTER_CONFIG=$($PYTHON $CLI $CLI_OPTIONS clusters list  --output JSON | \
- $JQ_PATH -r '(.clusters[] | select (.cluster_name=="'$CLUSTER_NAME'")).cluster_id')
-
-echo $CLUSTER_CONFIG
-
-echo 'ahadhjks' > $OUTPUT
+%{VARIABLES}
+%{CONDITIONS}
+%{PRE_CMD}
+%{CMD}

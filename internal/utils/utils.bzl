@@ -1,6 +1,8 @@
 
 # Copied from https://github.com/bazelbuild/bazel-skylib/blob/master/lib/dicts.bzl
 # Remove it if we add a dependency on skylib.
+load("//internal/utils:providers.bzl", "FsInfo", "ConfigureInfo")
+
 def _add_dicts(*dictionaries):
     """Returns a new `dict` that has all the entries of the given dictionaries.
     If the same key is present in more than one of the input dictionaries, the
@@ -106,4 +108,33 @@ def resolve_stamp(ctx, string, output):
         tools = [ctx.executable._stamper],
         outputs = [output],
         mnemonic = "Stamp",
+    )
+
+def resolve_config_file(ctx, config_file, profile, output):
+    args = ctx.actions.args()
+    args.add(config_file, format = "--config_file=%s")
+    args.add(profile, format = "--profile=%s")
+    args.add(output, format = "--output=%s")
+    ctx.actions.run(
+        executable = ctx.executable._reading_from_file,
+        arguments = [args],
+        # inputs = [config_file],
+        tools = [ctx.executable._reading_from_file],
+        outputs = [output],
+        mnemonic = "ProfileStatus",
+    )
+
+def toolchain_properties(ctx, toolchain):
+
+    toolchain_info = ctx.toolchains[toolchain].info
+    jq_info = toolchain_info.jq_tool_target[DefaultInfo]
+
+    return struct(
+        toolchain_info = toolchain_info,
+        toolchain_info_file_list = toolchain_info.tool_target.files.to_list(),
+        cli = toolchain_info.tool_target[DefaultInfo].files_to_run.executable.short_path,
+        client_config = toolchain_info.client_config,
+        jq_info =  jq_info,
+        jq_tool =  jq_info.files_to_run.executable.path,
+        jq_info_file_list =  jq_info.files.to_list()
     )

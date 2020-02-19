@@ -1,6 +1,5 @@
 load("//internal/utils:utils.bzl", "utils", "dirname", "join")
 load("//internal/utils:providers.bzl", "FsInfo", "ConfigureInfo")
-load("//internal/utils:configure.bzl", "FsInfo", "ConfigureInfo")
 _DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
 
 _common_attr  = {

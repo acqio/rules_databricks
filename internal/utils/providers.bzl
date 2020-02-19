@@ -3,6 +3,8 @@ FsInfo = provider(
     fields = {
         "srcs": "",
         "dbfs_srcs_path": "List with path in dbfs of uploaded files",
+        "fs_stamp_file":"",
+        "fs_config_file_status":""
     },
 )
 

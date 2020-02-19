@@ -1,20 +1,10 @@
-load("//internal/utils:utils.bzl", "utils", "dirname", "join_path", "resolve_stamp")
+load(
+    "//internal/utils:utils.bzl",
+    "utils", "dirname", "join_path", "resolve_stamp", "toolchain_properties", "resolve_config_file"
+)
 load("//internal/utils:providers.bzl", "FsInfo", "ConfigureInfo")
-load("//internal/utils:common.bzl", "DBFS_PROPERTIES", "DATABRICKS_API_COMMAND_ALLOWED")
+load("//internal/utils:common.bzl", "DBFS_PROPERTIES", "DATABRICKS_API_COMMAND_ALLOWED", "CMD_CONFIG_FILE_STATUS", "CMD_CLUSTER_INFO")
 _DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
-
-# def _symlink_impl(ctx):
-#     symlink = ctx.actions.declare_symlink(ctx.label.name)
-#     ctx.actions.symlink(symlink, ctx.attr.link_target)
-#     return DefaultInfo(files = depset([symlink]))
-
-# symlink = rule(implementation = _symlink_impl, attrs = {"link_target": attr.string()})
-
-# def _write_impl(ctx):
-#     output = ctx.actions.declare_file(ctx.label.name)
-#     ctx.actions.write(output, ctx.attr.contents)
-#     return DefaultInfo(files = depset([output]))
-# write = rule(implementation = _write_impl, attrs = {"contents": attr.string()})
 
 def _aspect_srcs(ctx):
 
@@ -25,13 +15,18 @@ def _aspect_srcs(ctx):
 
 _common_attr  = {
     "_script_tpl": attr.label(
-        default = Label("//internal/utility:fs.sh.tpl"),
+        default = Label("//internal/utility:script.sh.tpl"),
         allow_single_file = True,
     ),
     "_stamper": attr.label(
-        default = Label("//internal/utils/stamper:stamper"),
-        cfg = "host",
+        default = Label("//internal/utils/stamper:stamper.par"),
         executable = True,
+        cfg = "host",
+    ),
+    "_reading_from_file": attr.label(
+        default = Label("//internal/utils/reading_from_file:reading_from_file.par"),
+        executable = True,
+        cfg = "host"
     ),
     "_api": attr.string(
         default = "fs",
@@ -51,39 +46,32 @@ _common_attr  = {
     ),
 }
 
-def _properties(ctx):
-
-    toolchain_info = ctx.toolchains[_DATABRICKS_TOOLCHAIN].info
-    jq_info = toolchain_info.jq_tool_target[DefaultInfo]
-
-    return struct(
-        toolchain_info = toolchain_info,
-        toolchain_info_file_list = toolchain_info.tool_target.files.to_list(),
-        profile = ctx.attr.configure[ConfigureInfo].profile,
-        cli = toolchain_info.tool_target[DefaultInfo].files_to_run.executable.short_path,
-        cluster_name = ctx.attr.configure[ConfigureInfo].cluster_name,
-        jq_info =  jq_info,
-        jq_info_file_list =  jq_info.files.to_list()
-    )
-
 def _impl(ctx):
-    properties = _properties(ctx)
+    properties = toolchain_properties(ctx, _DATABRICKS_TOOLCHAIN)
     aspects = _aspect_srcs(ctx)
     cmd=[]
     api_cmd = ctx.attr._command
+    runfiles = []
 
-    extra_runfiles = []
+    profile = ctx.attr.configure[ConfigureInfo].profile
 
     variables = [
         'CLI="%s"' % properties.cli,
-        'DEFAULT_ARGS="--profile %s"'% properties.profile,
-        'CLUSTER_NAME="%s"'% properties.cluster_name,
+        'DEFAULT_ARGS="--profile %s"'% profile,
+        'JQ_TOOL="%s"'% properties.jq_tool,
     ]
+
+    config_file_status = ctx.actions.declare_file(ctx.attr.name + ".config_file_status")
+    resolve_config_file(ctx, properties.client_config, profile, config_file_status)
+    runfiles.append(config_file_status)
+    variables.append('CONFIG_FILE_INFO="$(cat %s)"' % config_file_status.short_path)
+
+    stamp_file=""
 
     if ctx.attr.stamp:
         stamp_file = ctx.actions.declare_file(ctx.attr.name + ".stamp")
         resolve_stamp(ctx, ctx.attr.stamp.strip(), stamp_file)
-        extra_runfiles.append(stamp_file)
+        runfiles.append(stamp_file)
         variables.append('STAMP="$(cat %s)"' % stamp_file.short_path)
 
     s_cli_format = "${CLI}"
@@ -94,7 +82,7 @@ def _impl(ctx):
 
     for aspect in aspects.bazel_srcs:
         src_basename = aspect.basename
-
+        runfiles.append(aspect)
         if ctx.attr.stamp:
             src_basename = "${STAMP}-" + aspect.basename
 
@@ -142,23 +130,27 @@ def _impl(ctx):
         template = ctx.file._script_tpl,
         substitutions = {
             "%{VARIABLES}": '\n'.join(variables),
-            "%{CMD}": '; \n'.join(cmd)
+            "%{CONDITIONS}": CMD_CONFIG_FILE_STATUS,
+            "%{PRE_CMD}" : "",
+            "%{CMD}": '# '.join(cmd)
         }
     )
-
-    print(aspects.bazel_srcs)
-    print(FsInfo_srcs_srcs_path)
 
     return [
             DefaultInfo(
                 runfiles = ctx.runfiles(
-                    files = ctx.files.srcs + extra_runfiles,
-                    transitive_files = depset(properties.toolchain_info_file_list + properties.jq_info_file_list)
+                    files = runfiles,
+                    transitive_files = depset(
+                        properties.toolchain_info_file_list + properties.jq_info_file_list
+                    )
                 ),
+                files = depset(runfiles)
             ),
             FsInfo(
                 srcs = aspects.bazel_srcs,
-                dbfs_srcs_path = aspects.dbfs_srcs_dirname,
+                dbfs_srcs_path = FsInfo_srcs_srcs_path,
+                fs_stamp_file = stamp_file,
+                fs_config_file_status = config_file_status
             )
         ]
 

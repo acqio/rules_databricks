@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 load("//internal/utils:providers.bzl", "ConfigureInfo")
-_DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
-## http://zetcode.com/python/configparser/ realizar parser do databrickscfg para confirar se o profile existe.
 
 def _impl(ctx):
     profile = ctx.attr.profile or ""
@@ -24,18 +22,21 @@ def _impl(ctx):
         fail("The cluster name value is mandatory.")
 
     return [
-      ConfigureInfo(
-            profile = profile,
+        ConfigureInfo(
+            profile = profile.upper(),
             cluster_name = cluster_name,
         )
     ]
 
 configure = rule(
     implementation = _impl,
-    # executable = True,
-    # toolchains = [_DATABRICKS_TOOLCHAIN],
     attrs = {
-        "profile": attr.string(default = "DEFAULT", mandatory = True),
-        "cluster_name": attr.string(mandatory = True)
+        "profile": attr.string(
+            default = "DEFAULT",
+            mandatory = True
+        ),
+        "cluster_name": attr.string(
+            mandatory = True
+        ),
     }
 )
