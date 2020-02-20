@@ -4,7 +4,7 @@ _DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
 
 _common_attr  = {
     "_script_tpl": attr.label(
-        default = Label("//internal/utility:clusters.sh.tpl"),
+        default = Label("//internal/utility:script.sh.tpl"),
         allow_single_file = True,
     )
 }

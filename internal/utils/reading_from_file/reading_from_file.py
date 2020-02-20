@@ -30,7 +30,6 @@ def main():
     config_file = args.config_file or ""
     profile = args.profile or ""
     outfile = args.output or ""
-    os.path.isfile(config_file)
 
     data = {}
     data['status'] = ''
@@ -41,11 +40,14 @@ def main():
             data['status'] = 'error'
             data['message'] = 'The databricks configuration file does not exist at ' + str(config_file)
         else:
-            config = configparser.ConfigParser()
-            config.read(config_file)
-            config[profile]
+            config_parser = configparser.ConfigParser()
+            config_parser.read(config_file)
+            section_profile = config_parser[profile]
             data['status'] = 'success'
             data['message'] = 'Profile exists'
+            data['config'] = {
+                'host': section_profile.get('host')
+            }
     except IOError:
         data['status'] = 'error'
         data['message'] = 'The databricks configuration file does not accessible in ' + str(config_file)

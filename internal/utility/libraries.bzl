@@ -35,34 +35,36 @@ _common_attr = {
 def _impl(ctx):
 
     properties = toolchain_properties(ctx, _DATABRICKS_TOOLCHAIN)
-    cmd=[]
     api_cmd = ctx.attr._command
+    cmd=[]
     runfiles = []
     transitive_files = []
     transitive_files+= (properties.toolchain_info_file_list + properties.jq_info_file_list)
-    profile = ctx.attr.configure[ConfigureInfo].profile
-    cluster_name = ctx.attr.configure[ConfigureInfo].cluster_name
 
     variables = [
         'CLI="%s"' % properties.cli,
-        'DEFAULT_ARGS="--profile %s"'% profile,
-        'CLUSTER_NAME="%s"'% cluster_name,
+        'DEFAULT_ARGS="--profile %s"'% ctx.attr.configure[ConfigureInfo].profile,
         'JQ_TOOL="%s"'% properties.jq_tool,
+        'CLUSTER_NAME="%s"'% ctx.attr.configure[ConfigureInfo].cluster_name,
         'CLUSTER_ID=$(${CLI} clusters list ${DEFAULT_ARGS} --output JSON | ' + \
             '${JQ_TOOL} -r \'(.clusters[] | select (.cluster_name=="\'${CLUSTER_NAME}\'")).cluster_id\')'
     ]
 
+    configure_info = ctx.attr.configure[ConfigureInfo]
+    runfiles.append(configure_info.config_file_info)
+    variables.append('CONFIG_FILE_INFO="$(cat %s)"' % configure_info.config_file_info.short_path)
+
     s_cli_format = "${CLI}"
     s_default_options = "${DEFAULT_ARGS}"
-    cmd_format = "{cli} {cmd} {default_options} {options} {dbfs_src}"
+    cmd_format = " {cli} {cmd} {default_options} {options} {dbfs_src}"
 
     if api_cmd == "install":
         if ctx.attr.dbfs:
             fs_info = ctx.attr.dbfs[FsInfo]
-            transitive_files+=ctx.attr.dbfs[DefaultInfo].files.to_list()
 
-            if fs_info.fs_stamp_file:
-                variables.append('STAMP="$(cat %s)"' % ctx.attr.dbfs[FsInfo].fs_stamp_file.short_path)
+            if fs_info.stamp_file:
+                transitive_files.append(fs_info.stamp_file)
+                variables.append('STAMP="$(cat %s)"' % fs_info.stamp_file.short_path)
 
             for dbfs_src_path in fs_info.dbfs_srcs_path:
                 cmd.append(
@@ -74,11 +76,8 @@ def _impl(ctx):
                             dbfs_src = dbfs_src_path
                         )
                     )
-        elif ctx.attr.maven_info:
-            config_file_status = ctx.actions.declare_file(ctx.attr.name + ".config_file_status")
-            resolve_config_file(ctx, properties.client_config, profile, config_file_status)
-            runfiles.append(config_file_status)
-            variables.append('CONFIG_FILE_INFO="$(cat %s)"' % config_file_status.short_path)
+        # elif ctx.attr.maven_info:
+        #     print(a)
 
     if api_cmd == "cluster-status":
         cmd.append(
