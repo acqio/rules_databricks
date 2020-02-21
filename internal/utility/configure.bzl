@@ -16,14 +16,14 @@ load("//internal/utils:utils.bzl", "resolve_config_file")
 _DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
 
 def _impl(ctx):
-    profile = ctx.attr.profile.upper() or ""
+    profile = ctx.attr.profile or ""
     cluster_name = ctx.attr.cluster_name or ""
-    if not profile.strip():
+    if not profile:
         fail("The profile value is mandatory.")
     if not cluster_name.strip():
         fail("The cluster name value is mandatory.")
 
-    config_file_info = ctx.actions.declare_file(profile + ".config_file_info")
+    config_file_info = ctx.actions.declare_file(ctx.attr.name + ".config_file_info")
     resolve_config_file(
         ctx,
         ctx.toolchains[_DATABRICKS_TOOLCHAIN].info.client_config,
@@ -38,7 +38,7 @@ def _impl(ctx):
             )
         ),
         ConfigureInfo(
-            profile = profile.upper(),
+            profile = profile,
             cluster_name = cluster_name,
             config_file_info = config_file_info
         )
@@ -56,7 +56,7 @@ configure = rule(
             mandatory = True
         ),
         "_reading_from_file": attr.label(
-            default = Label("//internal/utils/reading_from_file:reading_from_file.par"),
+            default = Label("//internal/utils/reading_from_file:main.par"),
             executable = True,
             cfg = "host"
         ),

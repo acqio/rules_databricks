@@ -1,8 +1,8 @@
 FsInfo = provider(
     doc = "",
     fields = {
-        "jars": "",
-        "dbfs_jars_path": "List with path in dbfs of uploaded files",
+        "srcs": "",
+        "dbfs_srcs_path": "List with path in dbfs of uploaded files",
         "stamp_file":"",
     },
 )

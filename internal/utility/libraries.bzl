@@ -11,19 +11,22 @@ _common_attr = {
         default = Label("//internal/utility:script.sh.tpl"),
         allow_single_file = True,
     ),
-    "_reading_from_file": attr.label(
-        default = Label("//internal/utils/reading_from_file:reading_from_file.par"),
+    "_reading_yaml_file": attr.label(
+        default = Label("//internal/utils/reading_yaml_file:main.par"),
         executable = True,
-        cfg = "host"
+        cfg = "host",
     ),
     "_api": attr.string(
         default = "libraries",
     ),
-    "dbfs": attr.label(
+    "jar": attr.label(
         mandatory = False,
         providers = [FsInfo]
     ),
-    "maven_info": attr.string_dict(
+    "bazel_deps_dependencies": attr.label(
+        allow_single_file = [".yaml", ".yml"]
+    ),
+    "maven_info": attr.string_list_dict(
         mandatory = False,
     ),
     "configure": attr.label(
@@ -46,47 +49,68 @@ def _impl(ctx):
         'DEFAULT_ARGS="--profile %s"'% ctx.attr.configure[ConfigureInfo].profile,
         'JQ_TOOL="%s"'% properties.jq_tool,
         'CLUSTER_NAME="%s"'% ctx.attr.configure[ConfigureInfo].cluster_name,
-        'CLUSTER_ID=$(${CLI} clusters list ${DEFAULT_ARGS} --output JSON | ' + \
-            '${JQ_TOOL} -r \'(.clusters[] | select (.cluster_name=="\'${CLUSTER_NAME}\'")).cluster_id\')'
     ]
 
     configure_info = ctx.attr.configure[ConfigureInfo]
     runfiles.append(configure_info.config_file_info)
     variables.append('CONFIG_FILE_INFO="$(cat %s)"' % configure_info.config_file_info.short_path)
 
-    s_cli_format = "${CLI}"
-    s_default_options = "${DEFAULT_ARGS}"
-    cmd_format = " {cli} {cmd} {default_options} {options} {dbfs_src}"
+    cmd_format = "$CLI {cmd} $DEFAULT_ARGS --cluster-id $CLUSTER_ID {options};"
 
     if api_cmd == "install":
-        if ctx.attr.dbfs:
-            fs_info = ctx.attr.dbfs[FsInfo]
+        if ctx.attr.jar:
+            fs_info = ctx.attr.jar[FsInfo]
 
             if fs_info.stamp_file:
                 transitive_files.append(fs_info.stamp_file)
                 variables.append('STAMP="$(cat %s)"' % fs_info.stamp_file.short_path)
 
+            cmd.append("exec '%s';" % ctx.attr.jar[DefaultInfo].files_to_run.executable.short_path)
+
             for dbfs_src_path in fs_info.dbfs_srcs_path:
                 cmd.append(
                         cmd_format.format(
-                            cli = s_cli_format,
                             cmd = "%s %s" % (ctx.attr._api,api_cmd),
-                            default_options = s_default_options,
-                            options = "--cluster-id ${CLUSTER_ID} --jar" ,
-                            dbfs_src = dbfs_src_path
+                            options = "--jar %s" % dbfs_src_path
                         )
                     )
-        # elif ctx.attr.maven_info:
-        #     print(a)
+        if ctx.attr.maven_info:
+            maven_info = ctx.attr.maven_info.items()
+            for repo, coordinates in maven_info:
+                for coordinate in coordinates:
+                    cmd.append(
+                        cmd_format.format(
+                            cmd = "%s %s" % (ctx.attr._api,api_cmd),
+                            options = "--maven-repo %s --maven-coordinates %s" % (repo, coordinate),
+                        )
+                    )
+
+        if len(ctx.files.bazel_deps_dependencies) == 1:
+            src = ctx.files.bazel_deps_dependencies[0]
+
+            maven_coordinates = ctx.actions.declare_file(ctx.attr.name + ".maven-coordinates")
+            args = ctx.actions.args()
+            args.add(src, format = "--yaml=%s")
+            args.add(ctx.attr.maven_info, format = "--maven-coordinates=%s")
+            args.add(maven_coordinates, format = "--output=%s")
+
+            transitive_files.append(maven_coordinates)
+            transitive_files.append(src)
+
+            ctx.actions.run(
+                executable = ctx.executable._reading_yaml_file,
+                arguments = [args],
+                inputs = [src],
+                tools = [ctx.executable._reading_yaml_file],
+                outputs = [maven_coordinates],
+                mnemonic = "BazelDepsDependencies",
+            )
 
     if api_cmd == "cluster-status":
         cmd.append(
             cmd_format.format(
-                cli = s_cli_format,
                 cmd = "%s %s" % (ctx.attr._api,api_cmd),
-                default_options = s_default_options,
-                options = "--cluster-id ${CLUSTER_ID}" ,
-                dbfs_src = ""
+                options = "",
             )
         )
 
@@ -98,7 +122,6 @@ def _impl(ctx):
         substitutions = {
             "%{VARIABLES}": '\n'.join(variables),
             "%{CONDITIONS}": CMD_CONFIG_FILE_STATUS + CMD_CLUSTER_INFO,
-            "%{PRE_CMD}" : "# exec '%s'" % ctx.attr.dbfs[DefaultInfo].files_to_run.executable.short_path,
             "%{CMD}": ' '.join(cmd)
         }
     )

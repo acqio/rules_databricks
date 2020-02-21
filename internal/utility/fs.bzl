@@ -6,11 +6,13 @@ load("//internal/utils:providers.bzl", "FsInfo", "ConfigureInfo")
 load("//internal/utils:common.bzl", "DBFS_PROPERTIES", "CMD_CONFIG_FILE_STATUS")
 _DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
 
-def _aspect_jars(ctx):
+def _aspect_srcs(ctx):
 
     return struct(
-        bazel_jars = [jar for jar in ctx.files.jars],
-        dbfs_jars_dirname =  join_path(DBFS_PROPERTIES["dbfs_jars_basepath"], DBFS_PROPERTIES["dbfs_prefix_filepath"])
+        bazel_srcs = [src for src in ctx.files.srcs],
+        dbfs_srcs_dirname =  join_path(
+            DBFS_PROPERTIES["dbfs_srcs_basepath"], DBFS_PROPERTIES["dbfs_prefix_filepath"]
+        )
     )
 
 _common_attr  = {
@@ -23,15 +25,10 @@ _common_attr  = {
         executable = True,
         cfg = "host",
     ),
-    "_reading_from_file": attr.label(
-        default = Label("//internal/utils/reading_from_file:reading_from_file.par"),
-        executable = True,
-        cfg = "host"
-    ),
     "_api": attr.string(
         default = "fs",
     ),
-    "jars": attr.label_list(
+    "srcs": attr.label_list(
         mandatory = True,
         allow_files = True,
         # allow_files = [".jar"],
@@ -48,14 +45,14 @@ _common_attr  = {
 
 def _impl(ctx):
     properties = toolchain_properties(ctx, _DATABRICKS_TOOLCHAIN)
-    aspects = _aspect_jars(ctx)
+    aspects = _aspect_srcs(ctx)
     api_cmd = ctx.attr._command
     cmd=[]
     runfiles = []
 
     variables = [
         'CLI="%s"' % properties.cli,
-        'DEFAULT_ARGS="--profile %s"'% ctx.attr.configure[ConfigureInfo].profile,
+        'DEFAULT_ARGS="--profile \'%s\'"'% ctx.attr.configure[ConfigureInfo].profile,
         'JQ_TOOL="%s"'% properties.jq_tool,
     ]
 
@@ -71,18 +68,18 @@ def _impl(ctx):
 
     s_cli_format = "${CLI}"
     s_default_options = "${DEFAULT_ARGS}"
-    cmd_format = "# {cli} {cmd} {default_options} {options} {jar} {dbfs_jar}"
+    cmd_format = "# {cli} {cmd} {default_options} {options} {src} {dbfs_src};"
 
-    FsInfo_jars_jars_path=[]
+    FsInfo_srcs_srcs_path=[]
 
-    for aspect in aspects.bazel_jars:
-        jar_basename = aspect.basename
+    for aspect in aspects.bazel_srcs:
+        src_basename = aspect.basename
         runfiles.append(aspect)
         if ctx.attr.stamp:
-            jar_basename = "${STAMP}-" + aspect.basename
+            src_basename = "${STAMP}-" + aspect.basename
 
-        s_dbfs_jar = aspects.dbfs_jars_dirname + aspect.dirname + "/" + jar_basename
-        FsInfo_jars_jars_path.append(s_dbfs_jar)
+        s_dbfs_src = aspects.dbfs_srcs_dirname + aspect.dirname + "/" + src_basename
+        FsInfo_srcs_srcs_path.append(s_dbfs_src)
 
         if api_cmd in ["ls","cp"]:
             if api_cmd == "cp":
@@ -92,8 +89,8 @@ def _impl(ctx):
                         cmd = "%s %s" % (ctx.attr._api,api_cmd),
                         default_options = s_default_options,
                         options = "--overwrite",
-                        jar = aspect.path,
-                        dbfs_jar = s_dbfs_jar
+                        src = aspect.path,
+                        dbfs_src = s_dbfs_src
                     )
                 )
             cmd.append(
@@ -102,8 +99,8 @@ def _impl(ctx):
                     cmd = "%s %s" % (ctx.attr._api, "ls"),
                     default_options = s_default_options,
                     options = "--absolute -l",
-                    jar = "",
-                    dbfs_jar = s_dbfs_jar
+                    src = "",
+                    dbfs_src = s_dbfs_src
                 )
             )
 
@@ -114,8 +111,8 @@ def _impl(ctx):
                     cmd = "%s %s" % (ctx.attr._api, api_cmd),
                     default_options = s_default_options,
                     options = "",
-                    jar = "",
-                    dbfs_jar = s_dbfs_jar
+                    src = "",
+                    dbfs_src = s_dbfs_src
                 )
             )
 
@@ -126,8 +123,7 @@ def _impl(ctx):
         substitutions = {
             "%{VARIABLES}": '\n'.join(variables),
             "%{CONDITIONS}": CMD_CONFIG_FILE_STATUS,
-            "%{PRE_CMD}" : "",
-            "%{CMD}": ' ;'.join(cmd)
+            "%{CMD}": ' '.join(cmd)
         }
     )
 
@@ -142,8 +138,8 @@ def _impl(ctx):
             executable = ctx.outputs.executable
         ),
         FsInfo(
-            jars = aspects.bazel_jars,
-            dbfs_jars_path = FsInfo_jars_jars_path,
+            srcs = aspects.bazel_srcs,
+            dbfs_srcs_path = FsInfo_srcs_srcs_path,
             stamp_file = stamp_file
         )
     ]

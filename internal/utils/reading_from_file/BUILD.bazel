@@ -19,8 +19,8 @@ load("@subpar//:subpar.bzl", "par_binary")
 load("@databricks_pip_deps//:requirements.bzl", "requirement")
 
 par_binary(
-  name = "reading_from_file",
-  srcs = ["reading_from_file.py"],
+  name = "main",
+  srcs = ["main.py"],
   deps = [requirement("configparser")],
   python_version = "PY2",
   visibility = ["//visibility:public"],

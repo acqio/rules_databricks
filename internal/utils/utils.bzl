@@ -118,7 +118,6 @@ def resolve_config_file(ctx, config_file, profile, output):
     ctx.actions.run(
         executable = ctx.executable._reading_from_file,
         arguments = [args],
-        # inputs = [config_file],
         tools = [ctx.executable._reading_from_file],
         outputs = [output],
         mnemonic = "ProfileStatus",
