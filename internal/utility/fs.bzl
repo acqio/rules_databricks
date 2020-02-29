@@ -1,6 +1,6 @@
 load(
     "//internal/utils:utils.bzl",
-    "utils", "dirname", "join_path", "resolve_stamp", "toolchain_properties",
+    "utils", "join_path", "resolve_stamp", "toolchain_properties",
 )
 load("//internal/utils:providers.bzl", "FsInfo", "ConfigureInfo")
 load("//internal/utils:common.bzl", "DBFS_PROPERTIES", "CMD_CONFIG_FILE_STATUS")
@@ -68,7 +68,7 @@ def _impl(ctx):
 
     s_cli_format = "${CLI}"
     s_default_options = "${DEFAULT_ARGS}"
-    cmd_format = "# {cli} {cmd} {default_options} {options} {src} {dbfs_src};"
+    cmd_format = "{cli} {cmd} {default_options} {options} {src} {dbfs_src};"
 
     FsInfo_srcs_srcs_path=[]
 
@@ -183,9 +183,6 @@ _fs_rm = rule(
 
 def fs(name, **kwargs):
 
-    if "directory" in kwargs:
-        if not kwargs["directory"].strip():
-            fail ("The directory attribute cannot be an empty string.")
     if "stamp" in kwargs:
         stamp = kwargs["stamp"].strip()
         if not stamp:

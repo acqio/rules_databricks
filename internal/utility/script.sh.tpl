@@ -18,4 +18,4 @@ tree
 
 %{VARIABLES}
 %{CONDITIONS}
-# %{CMD}
+%{CMD}
