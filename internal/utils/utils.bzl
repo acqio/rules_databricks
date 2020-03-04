@@ -1,8 +1,6 @@
 
 # Copied from https://github.com/bazelbuild/bazel-skylib/blob/master/lib/dicts.bzl
 # Remove it if we add a dependency on skylib.
-load("//internal/utils:providers.bzl", "FsInfo", "ConfigureInfo")
-
 def _add_dicts(*dictionaries):
     """Returns a new `dict` that has all the entries of the given dictionaries.
     If the same key is present in more than one of the input dictionaries, the

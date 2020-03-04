@@ -1,8 +1,5 @@
-load(
-    "//internal/utils:utils.bzl",
-    "utils", "toolchain_properties",
-)
-load("//internal/utils:providers.bzl", "FsInfo", "ConfigureInfo")
+load(":providers.bzl", "FsInfo", "ConfigureInfo")
+load("//internal/utils:utils.bzl", "utils", "toolchain_properties")
 load("//internal/utils:common.bzl", "CMD_CONFIG_FILE_STATUS", "CMD_CLUSTER_INFO")
 _DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
 
@@ -38,11 +35,11 @@ def _impl(ctx):
 
     variables = [
         'CLI="%s"' % properties.cli,
-        'DEFAULT_ARGS="--profile %s"' % ctx.attr.configure[ConfigureInfo].profile,
         'JQ_TOOL="%s"' % properties.jq_tool,
+        'DEFAULT_OPTIONS="--profile %s"' % ctx.attr.configure[ConfigureInfo].profile,
         'CLUSTER_NAME="%s"' % ctx.attr.configure[ConfigureInfo].cluster_name,
     ]
-    cmd_format = "$CLI {cmd} $DEFAULT_ARGS --debug  --cluster-id $CLUSTER_ID {options}"
+    cmd_format = "$CLI {cmd} $DEFAULT_OPTIONS --cluster-id $CLUSTER_ID {options}"
 
     configure_info = ctx.attr.configure[ConfigureInfo]
     runfiles.append(configure_info.config_file_info)

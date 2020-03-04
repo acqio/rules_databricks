@@ -28,7 +28,7 @@ databricks_configure(name, profile, cluster_name)
       <td>
         <code>String, required</code>
         <p>The name of the profile defined when set up authentication with databricks.</p>
-        <p>This value is defined when <a href="/README.md#databricks_authentication">configuring the CLI.</a></p>
+        <p>This value is defined when <a href="/README.md#databricks_authentication">Set Up Authentication.</a></p>
         <p><code>profile = "DEFAULT"</code></p>
       </td>
     </tr>
