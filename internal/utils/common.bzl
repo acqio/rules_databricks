@@ -6,7 +6,7 @@ DBFS_PROPERTIES = {
 }
 
 CMD_CONFIG_FILE_STATUS = """
-if [ $(echo $CONFIG_FILE_INFO | $JQ_TOOL -r .status) == "error" ] ; then
+if [ $(echo $CONFIG_FILE_INFO | $JQ_TOOL -r .status) != "success" ] ; then
     echo "FAIL: Databricks Configuration file"
     echo "OUTPUT:" $(echo $CONFIG_FILE_INFO | $JQ_TOOL -r .message)
     exit 1
@@ -22,4 +22,6 @@ if [ "$CLUSTER_ID" == "" ] ; then
     echo "OUTPUT:" $(echo $CLUSTER_ID | $JQ_TOOL -r .message)
     exit 1
 fi
+
+DEFAULT_OPTIONS="${DEFAULT_OPTIONS} --cluster-id $CLUSTER_ID"
 """

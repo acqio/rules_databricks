@@ -46,15 +46,18 @@ def _impl(ctx):
     api_cmd = ctx.attr._command
     cmd=[]
     runfiles = []
+    configure_info = ctx.attr.configure[ConfigureInfo]
 
+    print (configure_info)
     variables = [
         'CLI="%s"' % properties.cli,
         'JQ_TOOL="%s"'% properties.jq_tool,
-        'DEFAULT_OPTIONS="--profile %s"'% ctx.attr.configure[ConfigureInfo].profile,
+        'DEFAULT_OPTIONS="--profile %s %s"'% (configure_info.profile, configure_info.debug),
         'CMD="%s %s"' % (ctx.attr._api,api_cmd),
+        'CLUSTER_NAME="%s"' % configure_info.cluster_name,
     ]
 
-    config_file_info = ctx.attr.configure[ConfigureInfo].config_file_info
+    config_file_info = configure_info.config_file_info
     runfiles.append(config_file_info)
     variables.append('CONFIG_FILE_INFO="$(cat %s)"' % config_file_info.short_path)
 

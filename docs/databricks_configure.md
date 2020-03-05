@@ -40,5 +40,13 @@ databricks_configure(name, profile, cluster_name)
         <p><code>cluster_name = "FOO"</code></p>
       </td>
     </tr>
+    <tr>
+      <td><code>debug</code></td>
+      <td>
+        <code>Boolean, optional</code>
+        <p>Shows full stack trace on error</p>
+        <p><code>debug = True</code></p>
+      </td>
+    </tr>
   </tbody>
 </table>

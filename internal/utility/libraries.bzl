@@ -30,52 +30,47 @@ def _impl(ctx):
     api_cmd = ctx.attr._command
     cmd=[]
     runfiles = []
-    transitive_files = []
-    transitive_files+= (properties.toolchain_info_file_list + properties.jq_info_file_list)
+    transitive_files=(properties.toolchain_info_file_list + properties.jq_info_file_list)
+    configure_info = ctx.attr.configure[ConfigureInfo]
+    cmd_format = "$CLI $CMD $DEFAULT_OPTIONS {OPTIONS}"
 
     variables = [
         'CLI="%s"' % properties.cli,
         'JQ_TOOL="%s"' % properties.jq_tool,
-        'DEFAULT_OPTIONS="--profile %s"' % ctx.attr.configure[ConfigureInfo].profile,
-        'CLUSTER_NAME="%s"' % ctx.attr.configure[ConfigureInfo].cluster_name,
+        'DEFAULT_OPTIONS="--profile %s %s"'% (configure_info.profile, configure_info.debug),
+        'CMD="%s %s"' % (ctx.attr._api,api_cmd),
+        'CLUSTER_NAME="%s"' % configure_info.cluster_name,
     ]
-    cmd_format = "$CLI {cmd} $DEFAULT_OPTIONS --cluster-id $CLUSTER_ID {options}"
 
-    configure_info = ctx.attr.configure[ConfigureInfo]
     runfiles.append(configure_info.config_file_info)
-    variables.append('CONFIG_FILE_INFO="$(cat %s)"' % configure_info.config_file_info.short_path)
 
+    variables+=['CONFIG_FILE_INFO="$(cat %s)"' % configure_info.config_file_info.short_path]
 
-    if api_cmd == "install":
+    if api_cmd in ["install", "uninstall"]:
         if ctx.attr.dbfs:
             dbfs = ctx.attr.dbfs
-
-            if dbfs[FsInfo].stamp_file:
-                transitive_files.append(dbfs[FsInfo].stamp_file)
-                variables.append('STAMP="$(cat %s)"' % dbfs[FsInfo].stamp_file.short_path)
-
             transitive_files.append(dbfs[DefaultInfo].files_to_run.executable)
-            cmd.append("exec '%s';" % dbfs[DefaultInfo].files_to_run.executable.short_path)
 
-            for dbfs_src_path in dbfs[FsInfo].dbfs_srcs_path:
-                cmd.append(
-                        cmd_format.format(
-                            cmd = "%s %s" % (ctx.attr._api,api_cmd),
-                            options = "--jar %s" % dbfs_src_path
-                        )
-                    )
+        if dbfs[FsInfo].stamp_file:
+            transitive_files.append(dbfs[FsInfo].stamp_file)
+            variables.append('STAMP="$(cat %s)"' % dbfs[FsInfo].stamp_file.short_path)
+
+            cmd+=[
+                "exec '%s'" % dbfs[DefaultInfo].files_to_run.executable.short_path
+                ] + [
+                    cmd_format.format(OPTIONS = "--jar %s" % f) for f in dbfs[FsInfo].dbfs_files_path
+                ]
+
         if ctx.attr.maven_info:
-            maven_info = ctx.attr.maven_info.items()
-            for repo, coordinates in maven_info:
-                for coordinate in coordinates:
-                    cmd.append(
-                        cmd_format.format(
-                            cmd = "%s %s" % (ctx.attr._api,api_cmd),
-                            options = "--maven-repo %s --maven-coordinates %s" % (repo, coordinate),
-                        )
-                    )
+            cmd+=[
+                ' && '.join(
+                    [cmd_format.format(
+                            OPTIONS = '--maven-repo %s --maven-coordinates %s' % (r,c)
+                        ) for c in cs]
+                    ) for (r, cs) in ctx.attr.maven_info.items()
+                ]
 
-    if api_cmd == "cluster-status":
+    if api_cmd == "list":
         cmd.append("echo $CLUSTER_STATUS_LIBRARIES | $JQ_TOOL")
 
 
@@ -100,14 +95,14 @@ def _impl(ctx):
         ]
 
 
-_libraries_cluster_status = rule(
+_libraries_status = rule(
     implementation = _impl,
     executable = True,
     toolchains = [_DATABRICKS_TOOLCHAIN],
     attrs = utils.add_dicts(
         _common_attr,
         {
-            "_command": attr.string(default = "cluster-status")
+            "_command": attr.string(default = "list")
         },
     ),
 )
@@ -124,8 +119,21 @@ _libraries_install = rule(
     ),
 )
 
+_libraries_uninstall = rule(
+    implementation = _impl,
+    executable = True,
+    toolchains = [_DATABRICKS_TOOLCHAIN],
+    attrs = utils.add_dicts(
+        _common_attr,
+        {
+            "_command": attr.string(default = "uninstall")
+        },
+    ),
+)
+
 
 def libraries (name, **kwargs):
-    _libraries_cluster_status(name = name, **kwargs)
-    _libraries_cluster_status(name = name + ".cluster_status", **kwargs)
+    _libraries_status(name = name, **kwargs)
+    _libraries_status(name = name + ".list", **kwargs)
     _libraries_install(name = name + ".install",**kwargs)
+    _libraries_uninstall(name = name + ".uninstall",**kwargs)

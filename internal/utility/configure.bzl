@@ -18,10 +18,13 @@ _DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
 def _impl(ctx):
     profile = ctx.attr.profile or ""
     cluster_name = ctx.attr.cluster_name or ""
+    debug=""
     if not profile:
         fail("The profile value is mandatory.")
     if not cluster_name.strip():
         fail("The cluster name value is mandatory.")
+    if ctx.attr.debug:
+        debug = "--debug"
 
     config_file_info = ctx.actions.declare_file(ctx.attr.name + ".config_file_info")
     resolve_config_file(
@@ -40,6 +43,7 @@ def _impl(ctx):
         ConfigureInfo(
             profile = profile,
             cluster_name = cluster_name,
+            debug = debug,
             config_file_info = config_file_info
         )
     ]
@@ -54,6 +58,9 @@ configure = rule(
         ),
         "cluster_name": attr.string(
             mandatory = True
+        ),
+        "debug": attr.bool(
+            default = False
         ),
         "_reading_from_file": attr.label(
             default = Label("//internal/utils/reading_from_file:main.par"),
