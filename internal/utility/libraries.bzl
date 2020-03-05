@@ -28,11 +28,11 @@ def _impl(ctx):
 
     properties = toolchain_properties(ctx, _DATABRICKS_TOOLCHAIN)
     api_cmd = ctx.attr._command
-    cmd=[]
-    runfiles = []
-    transitive_files=(properties.toolchain_info_file_list + properties.jq_info_file_list)
     configure_info = ctx.attr.configure[ConfigureInfo]
     cmd_format = "$CLI $CMD $DEFAULT_OPTIONS {OPTIONS}"
+    transitive_files=(properties.toolchain_info_file_list + properties.jq_info_file_list)
+    runfiles=[configure_info.config_file_info]
+    cmd=[]
 
     variables = [
         'CLI="%s"' % properties.cli,
@@ -40,11 +40,8 @@ def _impl(ctx):
         'DEFAULT_OPTIONS="--profile %s %s"'% (configure_info.profile, configure_info.debug),
         'CMD="%s %s"' % (ctx.attr._api,api_cmd),
         'CLUSTER_NAME="%s"' % configure_info.cluster_name,
+        'CONFIG_FILE_INFO=$(cat %s)' % configure_info.config_file_info.short_path
     ]
-
-    runfiles.append(configure_info.config_file_info)
-
-    variables+=['CONFIG_FILE_INFO="$(cat %s)"' % configure_info.config_file_info.short_path]
 
     if api_cmd in ["install", "uninstall"]:
         if ctx.attr.dbfs:
@@ -53,7 +50,7 @@ def _impl(ctx):
 
         if dbfs[FsInfo].stamp_file:
             transitive_files.append(dbfs[FsInfo].stamp_file)
-            variables.append('STAMP="$(cat %s)"' % dbfs[FsInfo].stamp_file.short_path)
+            variables+=['STAMP=$(cat %s)' % dbfs[FsInfo].stamp_file.short_path]
 
             cmd+=[
                 "exec '%s'" % dbfs[DefaultInfo].files_to_run.executable.short_path
@@ -70,8 +67,11 @@ def _impl(ctx):
                     ) for (r, cs) in ctx.attr.maven_info.items()
                 ]
 
-    if api_cmd == "list":
-        cmd.append("echo $CLUSTER_STATUS_LIBRARIES | $JQ_TOOL")
+    if api_cmd == "cluster-status":
+        cmd+=[
+            "CLUSTER_STATUS=$(%s)" % cmd_format.format(OPTIONS = ""),
+        ] + ["echo $CLUSTER_STATUS | $JQ_TOOL ."]
+
 
 
     ctx.actions.expand_template(
@@ -81,7 +81,7 @@ def _impl(ctx):
         substitutions = {
             "%{VARIABLES}": '\n'.join(variables),
             "%{CONDITIONS}": CMD_CONFIG_FILE_STATUS + CMD_CLUSTER_INFO,
-            "%{CMD}": ' && '.join(cmd)
+            "%{CMD}": ' && \n '.join(cmd)
         }
     )
 
@@ -102,7 +102,7 @@ _libraries_status = rule(
     attrs = utils.add_dicts(
         _common_attr,
         {
-            "_command": attr.string(default = "list")
+            "_command": attr.string(default = "cluster-status")
         },
     ),
 )
@@ -134,6 +134,6 @@ _libraries_uninstall = rule(
 
 def libraries (name, **kwargs):
     _libraries_status(name = name, **kwargs)
-    _libraries_status(name = name + ".list", **kwargs)
+    _libraries_status(name = name + ".status", **kwargs)
     _libraries_install(name = name + ".install",**kwargs)
     _libraries_uninstall(name = name + ".uninstall",**kwargs)
