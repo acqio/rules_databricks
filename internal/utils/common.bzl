@@ -1,8 +1,6 @@
 DBFS_PROPERTIES = {
-    "dbfs_basepath_jars": "dbfs:/FileStore/jars",
-    "dbfs_basepath_py": "dbfs:/FileStore/python",
-    "dbfs_maven_basepath": "dbfs:/FileStore/maven",
-    "dbfs_prefix_filepath": "bazel"
+    "dbfs_basepath": "dbfs:/FileStore",
+    "dbfs_prefix_filepath": "bazel/"
 }
 
 CMD_CONFIG_FILE_STATUS = """
@@ -12,7 +10,7 @@ if [ $(echo $CONFIG_FILE_INFO | $JQ_TOOL -r .status) != "success" ] ; then
     exit 1
 fi
 """
-# cat cluster_libraries.json | $JQ_TOOL -r \'(.library_statuses[].library | select ( has("maven"))) | .maven.coordinates\'
+
 CMD_CLUSTER_INFO = """
 CLUSTER_ID=$($CLI clusters list $DEFAULT_OPTIONS --output JSON | \
 $JQ_TOOL -r \'(.clusters[] | select (.cluster_name=="\'$CLUSTER_NAME\'")).cluster_id\')

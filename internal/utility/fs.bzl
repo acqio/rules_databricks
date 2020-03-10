@@ -1,6 +1,7 @@
 load(":providers.bzl", "FsInfo", "ConfigureInfo")
-load("@bazel_skylib//lib:sets.bzl", "sets")
-load("//internal/utils:utils.bzl", "utils", "join_path", "resolve_stamp", "toolchain_properties")
+load("@bazel_skylib//lib:dicts.bzl", "dicts")
+load("@bazel_skylib//lib:paths.bzl", "paths")
+load("//internal/utils:utils.bzl", "resolve_stamp", "toolchain_properties")
 load("//internal/utils:common.bzl", "DBFS_PROPERTIES", "CMD_CONFIG_FILE_STATUS")
 _DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
 
@@ -8,8 +9,8 @@ def _aspect_files(ctx):
 
     return struct(
         bazel_files = [file for file in ctx.files.files],
-        dbfs_files_dirname =  join_path(
-            DBFS_PROPERTIES["dbfs_basepath_jars"], DBFS_PROPERTIES["dbfs_prefix_filepath"]
+        dbfs_files_dirname =  paths.join(
+            DBFS_PROPERTIES["dbfs_basepath"], DBFS_PROPERTIES["dbfs_prefix_filepath"]
         )
     )
 
@@ -44,11 +45,11 @@ def _impl(ctx):
     properties = toolchain_properties(ctx, _DATABRICKS_TOOLCHAIN)
     aspects = _aspect_files(ctx)
     api_cmd = ctx.attr._command
+    cmd_template = "$CLI $CMD $DEFAULT_OPTIONS {OPTIONS} {ARGS}"
     cmd=[]
     runfiles = []
     configure_info = ctx.attr.configure[ConfigureInfo]
 
-    print (configure_info)
     variables = [
         'CLI="%s"' % properties.cli,
         'JQ_TOOL="%s"'% properties.jq_tool,
@@ -75,12 +76,12 @@ def _impl(ctx):
 
     for aspect in aspects.bazel_files:
         file_basename = aspect.basename
-        fsinfo_file.append(aspect.path)
+        fsinfo_file.append(aspect)
         runfiles.append(aspect)
         if ctx.attr.stamp:
             file_basename = "${STAMP}-" + aspect.basename
 
-        dbfs_filepath = aspects.dbfs_files_dirname + aspect.dirname + "/" + file_basename
+        dbfs_filepath = paths.join(aspects.dbfs_files_dirname + paths.join(aspect.dirname, file_basename))
         fsinfo_filespath.append(dbfs_filepath)
 
         OPTIONS=""
@@ -121,7 +122,7 @@ def _impl(ctx):
             executable = ctx.outputs.executable
         ),
         FsInfo(
-            files = fsinfo_file,
+            files = depset(fsinfo_file),
             dbfs_files_path = fsinfo_filespath,
             stamp_file = fsinfo_stampfile
         )
@@ -132,7 +133,7 @@ _fs_ls = rule(
     executable = True,
     toolchains = [_DATABRICKS_TOOLCHAIN],
     implementation = _impl,
-    attrs = utils.add_dicts(
+    attrs = dicts.add(
         _common_attr,
         {
             "_command": attr.string(default = "ls")
@@ -144,7 +145,7 @@ _fs_cp = rule(
     implementation = _impl,
     executable = True,
     toolchains = [_DATABRICKS_TOOLCHAIN],
-    attrs = utils.add_dicts(
+    attrs = dicts.add(
         _common_attr,
         {
             "_command": attr.string(default = "cp")
@@ -156,7 +157,7 @@ _fs_rm = rule(
     implementation = _impl,
     executable = True,
     toolchains = [_DATABRICKS_TOOLCHAIN],
-    attrs = utils.add_dicts(
+    attrs = dicts.add(
         _common_attr,
         {
             "_command": attr.string(default = "rm")

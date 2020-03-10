@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Copyright 2017 The Bazel Authors. All rights reserved.
 #
@@ -14,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 set -euo pipefail
-tree
+echo $0
+
+function exe() { echo "\$ ${@/eval/}" ; "$@" ; }
 
 %{VARIABLES}
 %{CONDITIONS}

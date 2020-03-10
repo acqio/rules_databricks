@@ -1,5 +1,6 @@
 load(":providers.bzl", "FsInfo", "ConfigureInfo")
-load("//internal/utils:utils.bzl", "utils", "toolchain_properties")
+load("@bazel_skylib//lib:dicts.bzl", "dicts")
+load("//internal/utils:utils.bzl", "toolchain_properties")
 load("//internal/utils:common.bzl", "CMD_CONFIG_FILE_STATUS", "CMD_CLUSTER_INFO")
 _DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
 
@@ -29,7 +30,7 @@ def _impl(ctx):
     properties = toolchain_properties(ctx, _DATABRICKS_TOOLCHAIN)
     api_cmd = ctx.attr._command
     configure_info = ctx.attr.configure[ConfigureInfo]
-    cmd_format = "$CLI $CMD $DEFAULT_OPTIONS {OPTIONS}"
+    cmd_template = "$CLI $CMD $DEFAULT_OPTIONS {OPTIONS}"
     transitive_files=(properties.toolchain_info_file_list + properties.jq_info_file_list)
     runfiles=[configure_info.config_file_info]
     cmd=[]
@@ -47,21 +48,21 @@ def _impl(ctx):
         if ctx.attr.dbfs:
             dbfs = ctx.attr.dbfs
             transitive_files.append(dbfs[DefaultInfo].files_to_run.executable)
+            transitive_files+=(dbfs[FsInfo].files.to_list())
 
         if dbfs[FsInfo].stamp_file:
             transitive_files.append(dbfs[FsInfo].stamp_file)
             variables+=['STAMP=$(cat %s)' % dbfs[FsInfo].stamp_file.short_path]
 
-            cmd+=[
-                "exec '%s'" % dbfs[DefaultInfo].files_to_run.executable.short_path
-                ] + [
-                    cmd_format.format(OPTIONS = "--jar %s" % f) for f in dbfs[FsInfo].dbfs_files_path
-                ]
+            if api_cmd == "install":
+                cmd+=["exe '%s'" % dbfs[DefaultInfo].files_to_run.executable.short_path]
+
+            cmd+=[cmd_template.format(OPTIONS = "--jar %s" % f) for f in dbfs[FsInfo].dbfs_files_path]
 
         if ctx.attr.maven_info:
             cmd+=[
                 ' && '.join(
-                    [cmd_format.format(
+                    [cmd_template.format(
                             OPTIONS = '--maven-repo %s --maven-coordinates %s' % (r,c)
                         ) for c in cs]
                     ) for (r, cs) in ctx.attr.maven_info.items()
@@ -69,10 +70,8 @@ def _impl(ctx):
 
     if api_cmd == "cluster-status":
         cmd+=[
-            "CLUSTER_STATUS=$(%s)" % cmd_format.format(OPTIONS = ""),
+            "CLUSTER_STATUS=$(%s)" % cmd_template.format(OPTIONS = ""),
         ] + ["echo $CLUSTER_STATUS | $JQ_TOOL ."]
-
-
 
     ctx.actions.expand_template(
         is_executable = True,
@@ -81,7 +80,7 @@ def _impl(ctx):
         substitutions = {
             "%{VARIABLES}": '\n'.join(variables),
             "%{CONDITIONS}": CMD_CONFIG_FILE_STATUS + CMD_CLUSTER_INFO,
-            "%{CMD}": ' && \n '.join(cmd)
+            "%{CMD}": ' && '.join(cmd)
         }
     )
 
@@ -99,7 +98,7 @@ _libraries_status = rule(
     implementation = _impl,
     executable = True,
     toolchains = [_DATABRICKS_TOOLCHAIN],
-    attrs = utils.add_dicts(
+    attrs = dicts.add(
         _common_attr,
         {
             "_command": attr.string(default = "cluster-status")
@@ -111,7 +110,7 @@ _libraries_install = rule(
     implementation = _impl,
     executable = True,
     toolchains = [_DATABRICKS_TOOLCHAIN],
-    attrs = utils.add_dicts(
+    attrs = dicts.add(
         _common_attr,
         {
             "_command": attr.string(default = "install")
@@ -123,7 +122,7 @@ _libraries_uninstall = rule(
     implementation = _impl,
     executable = True,
     toolchains = [_DATABRICKS_TOOLCHAIN],
-    attrs = utils.add_dicts(
+    attrs = dicts.add(
         _common_attr,
         {
             "_command": attr.string(default = "uninstall")
