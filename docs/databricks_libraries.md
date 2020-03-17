@@ -16,7 +16,7 @@ databricks_libraries(
   },
   maven_package_exclusion = {
       "GroupId:ArtifactId:Version" : [
-        "slf4j:slf4j"
+        "foo:bar"
       ]
   },
 )
@@ -70,9 +70,7 @@ databricks_libraries(name, configure, dbfs, maven_info, maven_package_exclusion)
           the list is coordinated by the maven in the form of GroupId:ArtifactId:Version
         </p>
         <p>
-          <code>maven_info = {
-            "https://repo.maven.apache.org/maven2/": ["GroupId:ArtifactId:Version"]
-          }</code>
+          <code>maven_info = { "https://repo.maven.apache.org/maven2/": ["GroupId:ArtifactId:Version"] }</code>
         </p>
       </td>
     </tr>
@@ -80,9 +78,13 @@ databricks_libraries(name, configure, dbfs, maven_info, maven_package_exclusion)
       <td><code>maven_package_exclusion</code></td>
       <td>
         <code>String list Dict, optional</code>
-        <p>The name of the databricks cluster where operations can be performed.</p>
-        <p>The values of this field support stamp variables.</p>
-        <p><code>cluster_name = "{BUILD_TIMESTAMP}"</code></p>
+        <p>
+          The keys are the GroupId:ArtifactId:Version coordinated of the maven and
+          the list with the dependencies to be excluded.
+        </p>
+        <p>
+          <code>maven_info = { "GroupId:ArtifactId:Version": ["foo:bar"] }</code>
+        </p>
       </td>
     </tr>
   </tbody>
@@ -90,7 +92,7 @@ databricks_libraries(name, configure, dbfs, maven_info, maven_package_exclusion)
 
 ## Usage
 
-The `databricks_fs` rules expose a collection of actions. We will follow the `:src`
+The `databricks_libraries` rules expose a collection of actions. We will follow the `:lib`
 target from the example above.
 
 ### Status
