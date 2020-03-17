@@ -1,6 +1,10 @@
 <a name="databricks_libraries"></a>
 ## databricks_libraries
 
+```python
+databricks_libraries(name, configure, dbfs, maven_info, maven_package_exclusion)
+```
+
 For example, if the BUILD file contains:
 
 ```python
@@ -20,10 +24,6 @@ databricks_libraries(
       ]
   },
 )
-```
-
-```python
-databricks_libraries(name, configure, dbfs, maven_info, maven_package_exclusion)
 ```
 
 <table class="table table-condensed table-bordered table-params">

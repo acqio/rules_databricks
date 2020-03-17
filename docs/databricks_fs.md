@@ -1,6 +1,10 @@
 <a name="databricks_fs"></a>
 ## databricks_fs
 
+```python
+databricks_fs(name, configure, files, stamp)
+```
+
 For example, if the BUILD file contains:
 
 ```python
@@ -11,10 +15,6 @@ databricks_fs(
   files = [":src.jar"],
   stamp = "{BUILD_TIMESTAMP}",
 )
-```
-
-```python
-databricks_fs(name, configure, files, stamp)
 ```
 
 <table class="table table-condensed table-bordered table-params">

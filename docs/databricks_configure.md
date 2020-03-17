@@ -1,6 +1,10 @@
 <a name="databricks_configure"></a>
 ## databricks_configure
 
+```python
+databricks_configure(name, profile, cluster_name)
+```
+
 For example, if the BUILD file contains:
 
 ```python
@@ -10,10 +14,6 @@ databricks_configure(
   profile = "DEFAULT",
   cluster_name = "test"
 )
-```
-
-```python
-databricks_configure(name, profile, cluster_name)
 ```
 
 <table class="table table-condensed table-bordered table-params">
