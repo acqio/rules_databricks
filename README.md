@@ -4,7 +4,7 @@
 
 * [databricks_configure](docs/databricks_configure.md)
 * [databricks_fs](docs/databricks_fs.md)
-* [databricks_library](docs/databricks_library.md)
+* [databricks_libraries](docs/databricks_libraries.md)
 
 ## Requirements
 
