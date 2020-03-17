@@ -1,18 +1,12 @@
 # Databricks Rules for Bazel
 
-## Rules
+## Overview
 
-* [databricks_configure](docs/databricks_configure.md)
-* [databricks_fs](docs/databricks_fs.md)
-* [databricks_libraries](docs/databricks_libraries.md)
+This repository contains rules for interacting with Databricks configurations/clusters.
 
 ## Requirements
 
 * Python Version > 2.7.9 or > 3.6
-
-## Overview
-
-This repository contains rules for interacting with Databricks configurations/clusters.
 
 ## Setup
 
@@ -27,10 +21,10 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "rules_databricks",
-    sha256 = "cc75cf0d86312e1327d226e980efd3599704e01099b58b3c2fc4efe5e321fcd9",
+    sha256 = "3f50d35f68e796aa774781fa6419d9795ff16c157e31d8d6de1f286a8bf66339",
     strip_prefix = "rules_databricks-0.1",
     urls = [
-        "https://github.com/bazelbuild/rules_databricks/releases/download/v0.1/rules_databricks-v0.1.tar.gz"
+        "https://github.com/jullianow/rules_databricks/archive/v0.1.tar.gz"
     ],
 )
 
@@ -42,6 +36,13 @@ databricks_deps()
 
 load("@rules_databricks//databricks:pip_repositories.bzl", databricks_pip_deps = "pip_deps")
 databricks_pip_deps()
+```
+## Simple usage
+
+The rules_databricks target can be used as executables for custom actions or can be executed directly by Bazel. For example, you can run:
+
+```sh
+bazel run @rules_databricks//:cli -- -h
 ```
 
 ## Set up Authentication
@@ -55,3 +56,9 @@ Multiple connection profiles are also supported with `bazel run @rules_databrick
 The connection profile can be used as such: `bazel run @rules_databricks//:cli -- workspace ls --profile <profile>`.
 
 To test that your authentication information is working, try a quick test like `bazel run @rules_databricks//:cli -- workspace ls`.
+
+## Rules
+
+* [databricks_configure](docs/databricks_configure.md)
+* [databricks_fs](docs/databricks_fs.md)
+* [databricks_libraries](docs/databricks_libraries.md)
