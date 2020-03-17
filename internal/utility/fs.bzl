@@ -27,14 +27,14 @@ _common_attr  = {
     "_api": attr.string(
         default = "fs",
     ),
+    "configure": attr.label(
+        mandatory = True,
+        providers = [ConfigureInfo]
+    ),
     "files": attr.label_list(
         mandatory = True,
         allow_files = [".jar", ".py", ".sh"],
         allow_empty = False,
-    ),
-    "configure": attr.label(
-        mandatory = True,
-        providers = [ConfigureInfo]
     ),
     "stamp" : attr.string(
         default = ""
@@ -45,18 +45,19 @@ def _impl(ctx):
     properties = toolchain_properties(ctx, _DATABRICKS_TOOLCHAIN)
     aspects = _aspect_files(ctx)
     api_cmd = ctx.attr._command
-    cmd_template = "$CLI $CMD $DEFAULT_OPTIONS {OPTIONS} {ARGS}"
     cmd=[]
     runfiles = []
     configure_info = ctx.attr.configure[ConfigureInfo]
-
     variables = [
         'CLI="%s"' % properties.cli,
-        'JQ_TOOL="%s"'% properties.jq_tool,
-        'DEFAULT_OPTIONS="--profile %s %s"'% (configure_info.profile, configure_info.debug),
+        'JQ_TOOL="%s"' % properties.jq_tool,
+        'DEFAULT_OPTIONS="--profile %s"'% configure_info.profile,
         'CMD="%s %s"' % (ctx.attr._api,api_cmd),
         'CLUSTER_NAME="%s"' % configure_info.cluster_name,
+        'CONFIG_FILE_INFO=$(cat %s)' % configure_info.config_file_info.short_path
     ]
+
+    cmd_template = "$CLI $CMD $DEFAULT_OPTIONS {OPTIONS} {ARGS}"
 
     config_file_info = configure_info.config_file_info
     runfiles.append(config_file_info)
@@ -98,7 +99,7 @@ def _impl(ctx):
             OPTIONS = "--overwrite"
             ARGS = "%s %s" % (aspect.path,dbfs_filepath)
 
-        cmd.append("$CLI $CMD $DEFAULT_OPTIONS {OPTIONS} {ARGS}".format(OPTIONS = OPTIONS, ARGS = ARGS))
+        cmd.append(cmd_template.format(OPTIONS = OPTIONS, ARGS = ARGS))
 
     ctx.actions.expand_template(
         is_executable = True,
@@ -181,6 +182,5 @@ def fs(name, **kwargs):
             fail ("The stamp string is badly formatted (eg {BUILD_TIMESTAMP}):\n" + str(stamp))
 
     _fs_ls(name = name, **kwargs)
-    _fs_ls(name = name + ".ls", **kwargs)
     _fs_cp(name = name + ".cp",**kwargs)
     _fs_rm(name = name + ".rm",**kwargs)

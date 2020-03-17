@@ -1,6 +1,17 @@
 <a name="databricks_configure"></a>
 ## databricks_configure
 
+For example, if the BUILD file contains:
+
+```python
+
+databricks_configure(
+  name = "cfg"
+  profile = "DEFAULT",
+  cluster_name = "test"
+)
+```
+
 ```python
 databricks_configure(name, profile, cluster_name)
 ```
@@ -38,14 +49,6 @@ databricks_configure(name, profile, cluster_name)
         <code>String, required</code>
         <p>The name of the databricks cluster where operations can be performed.</p>
         <p><code>cluster_name = "FOO"</code></p>
-      </td>
-    </tr>
-    <tr>
-      <td><code>debug</code></td>
-      <td>
-        <code>Boolean, optional</code>
-        <p>Shows full stack trace on error</p>
-        <p><code>debug = True</code></p>
       </td>
     </tr>
   </tbody>

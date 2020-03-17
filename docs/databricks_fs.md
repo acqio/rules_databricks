@@ -1,8 +1,20 @@
 <a name="databricks_fs"></a>
 ## databricks_fs
 
+For example, if the BUILD file contains:
+
 ```python
-databricks_fs(name, profile, cluster_name)
+
+databricks_fs(
+  name = "src"
+  configure = ":cfg",
+  files = [":src.jar"],
+  stamp = "{BUILD_TIMESTAMP}",
+)
+```
+
+```python
+databricks_fs(name, configure, files, stamp)
 ```
 
 <table class="table table-condensed table-bordered table-params">
@@ -24,29 +36,59 @@ databricks_fs(name, profile, cluster_name)
       </td>
     </tr>
     <tr>
-      <td><code>files</code></td>
+      <td><code>configure</code></td>
       <td>
-        <code>Label List of files , required</code>
-        <p>The name of the profile defined when set up authentication with databricks.</p>
-        <p>This value is defined when <a href="/README.md#databricks_authentication">Set Up Authentication.</a></p>
-        <p><code>profile = "DEFAULT"</code></p>
+        <code>Label, required</code>
+        <p>Label of `databricks_configure` target.</p>
+        <p>Specify the databricks cluster settings.</p>
+        <p><code>configure = ":cfg"</code></p>
       </td>
     </tr>
     <tr>
-      <td><code>configure</code></td>
+      <td><code>files</code></td>
       <td>
-        <code>String, required</code>
-        <p>The name of the databricks cluster where operations can be performed.</p>
-        <p><code>cluster_name = "FOO"</code></p>
+        <code>Label List of files, required</code>
+        <p>File to add to the Databricks File Store (DBFS).</p>
+        <p>The file path in DBFS follows the pattern: <code>dbfs:/FileStore/bazel/{target}</code></p>
       </td>
     </tr>
     <tr>
       <td><code>stamp</code></td>
       <td>
-        <code>String, required</code>
+        <code>String, optional, default is empty string</code>
         <p>The name of the databricks cluster where operations can be performed.</p>
-        <p><code>cluster_name = "FOO"</code></p>
+        <p>The values of this field support stamp variables.</p>
+        <p><code>cluster_name = "{BUILD_TIMESTAMP}"</code></p>
       </td>
     </tr>
   </tbody>
 </table>
+
+## Usage
+
+The `databricks_fs` rules expose a collection of actions. We will follow the `:src`
+target from the example above.
+
+### List
+
+Users can list properties of files in DBFS by running:
+```shell
+bazel run :src
+```
+
+### Copy
+
+Users can copy files to DBFS by running:
+```shell
+bazel run :src.cp
+```
+
+### Remove
+
+Users can remove files from the DBFS by running:
+```shell
+bazel run :src.rm
+```
+
+It is notable that, despite deleting a file, it can be used in the cluster.
+Therefore, make sure it is not in use before performing this action.

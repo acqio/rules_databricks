@@ -12,6 +12,10 @@ _common_attr = {
     "_api": attr.string(
         default = "libraries",
     ),
+    "configure": attr.label(
+        mandatory = True,
+        providers = [ConfigureInfo]
+    ),
     "dbfs": attr.label(
         mandatory = False,
         providers = [FsInfo]
@@ -19,9 +23,8 @@ _common_attr = {
     "maven_info": attr.string_list_dict(
         mandatory = False,
     ),
-    "configure": attr.label(
-        mandatory = True,
-        providers = [ConfigureInfo]
+    "maven_package_exclusion": attr.string_list_dict(
+        mandatory = False,
     ),
 }
 
@@ -30,7 +33,7 @@ def _impl(ctx):
     properties = toolchain_properties(ctx, _DATABRICKS_TOOLCHAIN)
     api_cmd = ctx.attr._command
     configure_info = ctx.attr.configure[ConfigureInfo]
-    cmd_template = "$CLI $CMD $DEFAULT_OPTIONS {OPTIONS}"
+
     transitive_files=(properties.toolchain_info_file_list + properties.jq_info_file_list)
     runfiles=[configure_info.config_file_info]
     cmd=[]
@@ -38,11 +41,13 @@ def _impl(ctx):
     variables = [
         'CLI="%s"' % properties.cli,
         'JQ_TOOL="%s"' % properties.jq_tool,
-        'DEFAULT_OPTIONS="--profile %s %s"'% (configure_info.profile, configure_info.debug),
+        'DEFAULT_OPTIONS="--profile %s"'% configure_info.profile,
         'CMD="%s %s"' % (ctx.attr._api,api_cmd),
         'CLUSTER_NAME="%s"' % configure_info.cluster_name,
         'CONFIG_FILE_INFO=$(cat %s)' % configure_info.config_file_info.short_path
     ]
+
+    cmd_template = "$CLI $CMD $DEFAULT_OPTIONS {OPTIONS}"
 
     if api_cmd in ["install", "uninstall"]:
         if ctx.attr.dbfs:
@@ -60,18 +65,20 @@ def _impl(ctx):
             cmd+=[cmd_template.format(OPTIONS = "--jar %s" % f) for f in dbfs[FsInfo].dbfs_files_path]
 
         if ctx.attr.maven_info:
-            cmd+=[
-                ' && '.join(
-                    [cmd_template.format(
-                            OPTIONS = '--maven-repo %s --maven-coordinates %s' % (r,c)
-                        ) for c in cs]
-                    ) for (r, cs) in ctx.attr.maven_info.items()
-                ]
+            for (r, cs) in ctx.attr.maven_info.items():
+                for c in cs:
+                    cmd_in=[]
+                    cmd_in+=["--maven-repo %s" % r, "--maven-coordinates %s" % c]
+                    if c in ctx.attr.maven_package_exclusion:
+                        cmd_in+=[' '.join(['--maven-exclusion %s' % (e) for e in ctx.attr.maven_package_exclusion[c]])]
+
+                    cmd+=[
+                        cmd_template.format(OPTIONS = ' '.join(cmd_in))
+                    ]
+
 
     if api_cmd == "cluster-status":
-        cmd+=[
-            "CLUSTER_STATUS=$(%s)" % cmd_template.format(OPTIONS = ""),
-        ] + ["echo $CLUSTER_STATUS | $JQ_TOOL ."]
+        cmd+=["%s | $JQ_TOOL ." % cmd_template.format(OPTIONS = "")]
 
     ctx.actions.expand_template(
         is_executable = True,
