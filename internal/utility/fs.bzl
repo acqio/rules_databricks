@@ -79,15 +79,23 @@ def _impl(ctx):
         file_basename = aspect.basename
         fsinfo_file.append(aspect)
         runfiles.append(aspect)
+        dirname = aspect.dirname
+        if not aspect.is_source:
+            path_list = aspect.short_path.split("/")
+            dirname = "/".join(path_list[:-1])
         if ctx.attr.stamp:
             file_basename = "${STAMP}-" + aspect.basename
 
-        dbfs_filepath = paths.join(aspects.dbfs_files_dirname + paths.join(aspect.dirname, file_basename))
+        dbfs_filepath = paths.join(aspects.dbfs_files_dirname + paths.join(dirname, file_basename))
         fsinfo_filespath.append(dbfs_filepath)
 
         OPTIONS=""
         ARGS=""
 
+        local_path = aspect.short_path
+        if aspect.is_source:
+            local_path = aspect.path
+        
         if api_cmd == "ls":
             OPTIONS = "-l --absolute"
             ARGS = "%s" % (dbfs_filepath)
@@ -97,7 +105,7 @@ def _impl(ctx):
 
         if api_cmd == "cp":
             OPTIONS = "--overwrite"
-            ARGS = "%s %s" % (aspect.path,dbfs_filepath)
+            ARGS = "%s %s" % (local_path,dbfs_filepath)
 
         cmd.append(cmd_template.format(OPTIONS = OPTIONS, ARGS = ARGS))
 
