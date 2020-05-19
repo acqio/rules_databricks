@@ -21,10 +21,10 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "rules_databricks",
-    sha256 = "3f50d35f68e796aa774781fa6419d9795ff16c157e31d8d6de1f286a8bf66339",
-    strip_prefix = "rules_databricks-0.1",
+    sha256 = "4037efc2da666bba224342f758c41a0110bbf240f112693f1d86364160883f1d",
+    strip_prefix = "rules_databricks-0.2",
     urls = [
-        "https://github.com/jullianow/rules_databricks/archive/v0.1.tar.gz"
+        "https://github.com/jullianow/rules_databricks/archive/v0.2.tar.gz"
     ],
 )
 
