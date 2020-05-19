@@ -24,7 +24,7 @@ http_archive(
     sha256 = "b6c9a8e851703b847f36301013303bafcbe71146bd27a89afe9b68315993cac5",
     strip_prefix = "rules_databricks-0.2",
     urls = [
-        "https://github.com/jullianow/rules_databricks/archive/v0.2.tar.gz"
+        "https://github.com/acqio/rules_databricks/archive/v0.2.tar.gz"
     ],
 )
 
