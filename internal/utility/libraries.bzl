@@ -59,10 +59,10 @@ def _impl(ctx):
             transitive_files.append(dbfs[FsInfo].stamp_file)
             variables+=['STAMP=$(cat %s)' % dbfs[FsInfo].stamp_file.short_path]
 
-            if api_cmd == "install":
-                cmd+=["exe '%s'" % dbfs[DefaultInfo].files_to_run.executable.short_path]
+        if api_cmd == "install":
+            cmd+=["exe '%s'" % dbfs[DefaultInfo].files_to_run.executable.short_path]
 
-            cmd+=[cmd_template.format(OPTIONS = "--jar %s" % f) for f in dbfs[FsInfo].dbfs_files_path]
+        cmd+=[cmd_template.format(OPTIONS = "--jar %s" % f) for f in dbfs[FsInfo].dbfs_files_path]
 
         if ctx.attr.maven_info:
             for (r, cs) in ctx.attr.maven_info.items():
