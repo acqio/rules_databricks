@@ -13,7 +13,6 @@
 # limitations under the License.
 load("@subpar//:subpar.bzl", "par_binary")
 load("@databricks_pip_deps//:requirements.bzl", "requirement")
-# load("@rules_python//python:defs.bzl", "py_runtime")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -24,14 +23,6 @@ filegroup(
     testonly = True,
     srcs = glob(["**"]),
     visibility = ["//visibility:public"],
-)
-
-py_runtime(
-    name = "py_runtime",
-    interpreter_path = select({
-        "@bazel_tools//tools/python:PY2": "/usr/bin/python2",
-        "@bazel_tools//tools/python:PY3": "/usr/bin/python3",
-    }),
 )
 
 par_binary(
