@@ -75,16 +75,14 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 """,
-            sha256 = "6b7748da9595b818618ce3810647f900304219122114472e6653c4ffcd302537",
-            strip_prefix = "databricks-cli-0.9.1",
+            sha256 = "99c307e68561deca48c46b4d4ee66701883fe38d51dcd199fa46eed24e4ad12c",
+            strip_prefix = "databricks-cli-0.11.0",
             urls = [
-                "https://github.com/databricks/databricks-cli/archive/0.9.1.tar.gz"
+                "https://github.com/databricks/databricks-cli/archive/0.11.0.tar.gz"
             ],
         )
 
-    native.register_toolchains(
-        "@rules_databricks//toolchain/databricks:default_linux_toolchain"
-    )
+    native.register_toolchains("@rules_databricks//toolchain/databricks:default_linux_toolchain")
 
     if "databricks_config" not in excludes:
         databricks_toolchain_configure(name = "databricks_config")

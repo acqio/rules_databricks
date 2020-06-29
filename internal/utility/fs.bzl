@@ -48,20 +48,18 @@ def _impl(ctx):
     cmd=[]
     runfiles = []
     configure_info = ctx.attr.configure[ConfigureInfo]
+    config_file_info = configure_info.config_file_info
+    runfiles.append(config_file_info)
     variables = [
         'CLI="%s"' % properties.cli,
         'JQ_TOOL="%s"' % properties.jq_tool,
         'DEFAULT_OPTIONS="--profile %s"'% configure_info.profile,
         'CMD="%s %s"' % (ctx.attr._api,api_cmd),
         'CLUSTER_NAME="%s"' % configure_info.cluster_name,
-        'CONFIG_FILE_INFO=$(cat %s)' % configure_info.config_file_info.short_path
+        'CONFIG_FILE_INFO="$(cat %s)"' % configure_info.config_file_info.short_path
     ]
 
     cmd_template = "$CLI $CMD $DEFAULT_OPTIONS {OPTIONS} {ARGS}"
-
-    config_file_info = configure_info.config_file_info
-    runfiles.append(config_file_info)
-    variables.append('CONFIG_FILE_INFO="$(cat %s)"' % config_file_info.short_path)
 
     fsinfo_stampfile=""
 
@@ -79,23 +77,23 @@ def _impl(ctx):
         file_basename = aspect.basename
         fsinfo_file.append(aspect)
         runfiles.append(aspect)
-        dirname = aspect.dirname
+        dirname = paths.dirname(aspect.path)
+        local_path = aspect.short_path
+
         if not aspect.is_source:
-            path_list = aspect.short_path.split("/")
-            dirname = "/".join(path_list[:-1])
+            dirname = paths.dirname(aspect.short_path)
+        else:
+            local_path = aspect.path
+
         if ctx.attr.stamp:
             file_basename = "${STAMP}-" + aspect.basename
 
-        dbfs_filepath = paths.join(aspects.dbfs_files_dirname + paths.join(dirname, file_basename))
+        dbfs_filepath = paths.normalize(paths.join(aspects.dbfs_files_dirname + paths.join(dirname, file_basename)))
         fsinfo_filespath.append(dbfs_filepath)
 
         OPTIONS=""
         ARGS=""
 
-        local_path = aspect.short_path
-        if aspect.is_source:
-            local_path = aspect.path
-        
         if api_cmd == "ls":
             OPTIONS = "-l --absolute"
             ARGS = "%s" % (dbfs_filepath)
@@ -105,7 +103,7 @@ def _impl(ctx):
 
         if api_cmd == "cp":
             OPTIONS = "--overwrite"
-            ARGS = "%s %s" % (local_path,dbfs_filepath)
+            ARGS = "%s %s" % (paths.normalize(local_path), dbfs_filepath)
 
         cmd.append(cmd_template.format(OPTIONS = OPTIONS, ARGS = ARGS))
 
@@ -190,5 +188,6 @@ def fs(name, **kwargs):
             fail ("The stamp string is badly formatted (eg {BUILD_TIMESTAMP}):\n" + str(stamp))
 
     _fs_ls(name = name, **kwargs)
+    _fs_ls(name = name + ".ls", **kwargs)
     _fs_cp(name = name + ".cp",**kwargs)
     _fs_rm(name = name + ".rm",**kwargs)

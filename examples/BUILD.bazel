@@ -1,19 +1,19 @@
-# load("//internal:index.bzl", "databricks_fs_copy", "databricks_lib_install")
+load("//:index.bzl", "databricks_configure", "databricks_fs", "databricks_libraries")
 
-# filegroup(
-#     name = "jar",
-#     srcs = ["jython-2.7.2b3.jar"]
-# )
+databricks_configure(
+    name = "cfg",
+    cluster_name = "dev-cluster-dbk",
+    profile = "tst",
+)
 
-# databricks_fs_copy(
-#     name = "upload",
-#     srcs = {
-#       ":jar": "dbfs:/FileStore/jars/",
-#     },
-# )
+databricks_fs(
+    name = "fs",
+    configure = ":cfg",
+    files = ["dummy.jar"],
+)
 
-# databricks_lib_install(
-#     name = "install",
-#     cluster_name = "dev-db-test",
-#     deps = ":upload"
-# )
+databricks_libraries(
+    name = "lib",
+    configure = ":cfg",
+    dbfs = ":fs.cp",
+)

@@ -1,7 +1,9 @@
-# reference: https://github.com/databricks/databricks-cli/blob/0.9.1/setup.py
-click>=6.7
-requests>=2.17.3
-tabulate>=0.7.7
-six>=1.10.0
-configparser>=0.3.5
+# reference: https://github.com/databricks/databricks-cli/blob/0.11.0/setup.py
+certifi
+click
+configparser
 PyYAML
+requests
+six
+tabulate
+urllib3

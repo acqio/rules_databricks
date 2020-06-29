@@ -13,6 +13,7 @@
 # limitations under the License.
 load("@subpar//:subpar.bzl", "par_binary")
 load("@databricks_pip_deps//:requirements.bzl", "requirement")
+# load("@rules_python//python:defs.bzl", "py_runtime")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -37,15 +38,16 @@ par_binary(
     name = "cli",
     srcs = ["@databricks_src//:src"],
     deps = [
+        requirement("certifi"),
         requirement("click"),
         requirement("configparser"),
+        requirement("PyYAML"),
         requirement("requests"),
-        requirement("urllib3"),
-        requirement("chardet"),
-        requirement("certifi"),
+        requirement("six"),
         requirement("tabulate"),
+        requirement("urllib3"),
     ],
     visibility = ["//visibility:public"],
-    python_version = "PY2",
+    python_version = "PY3",
     main = "@databricks_src//:databricks_cli/cli.py",
 )

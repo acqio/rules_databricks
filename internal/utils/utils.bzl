@@ -1,4 +1,3 @@
-
 def resolve_stamp(ctx, string, output):
     stamps = [ctx.info_file, ctx.version_file]
     args = ctx.actions.args()
@@ -28,7 +27,6 @@ def resolve_config_file(ctx, config_file, profile, output):
     )
 
 def toolchain_properties(ctx, toolchain):
-
     toolchain_info = ctx.toolchains[toolchain].info
     jq_info = toolchain_info.jq_tool_target[DefaultInfo]
 
