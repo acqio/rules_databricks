@@ -15,13 +15,13 @@ package(default_visibility = ["//visibility:private"])
 
 licenses(["notice"])  # Apache 2.0
 
-load("@subpar//:subpar.bzl", "par_binary")
+load("@rules_python//python:defs.bzl", "py_binary")
 load("@databricks_pip_deps//:requirements.bzl", "requirement")
 
-par_binary(
+py_binary(
   name = "main",
   srcs = ["main.py"],
   deps = [requirement("configparser")],
-  python_version = "PY2",
+  python_version = "PY3",
   visibility = ["//visibility:public"],
 )

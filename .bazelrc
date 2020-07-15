@@ -1,3 +1,9 @@
-build --incompatible_use_python_toolchains=false
-run --incompatible_use_python_toolchains=false
-test --incompatible_use_python_toolchains=false
+build --incompatible_use_python_toolchains=false \
+  --python_top=//:py_runtime
+
+run --incompatible_use_python_toolchains=false \
+  --python_top=//:py_runtime \
+  --build_python_zip
+
+test --incompatible_use_python_toolchains=false \
+  --python_top=//:py_runtime

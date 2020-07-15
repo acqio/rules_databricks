@@ -53,15 +53,6 @@ def repositories():
             sha256 = "f4644c7fc13c70e8de005f8cac63c9b209203ebb8cc7ca6cb55c3a42b558e2a6",
         )
 
-    if "subpar" not in excludes:
-
-        git_repository(
-            name = "subpar",
-            remote = "https://github.com/google/subpar",
-            commit = "9fae6b63cfeace2e0fb93c9c1ebdc28d3991b16f",
-            shallow_since = "1565833028 -0400"
-        )
-
     if "jq" not in excludes:
 
         http_file(

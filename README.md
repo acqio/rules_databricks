@@ -17,7 +17,6 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # This requires that python be available in your distribution,
 # as this project uses rules_python to build the binary databricks cli.
-# Download the rules_databricks repository at release v0.1
 
 http_archive(
     name = "rules_databricks",
@@ -29,14 +28,26 @@ http_archive(
 )
 
 load("@rules_databricks//databricks:repositories.bzl", databricks_repositories = "repositories")
+
 databricks_repositories()
 
 load("@rules_databricks//databricks:deps.bzl", databricks_deps = "deps")
+
 databricks_deps()
 
 load("@rules_databricks//databricks:pip_repositories.bzl", databricks_pip_deps = "pip_deps")
+
 databricks_pip_deps()
+
+register_toolchains("@rules_databricks//toolchain/databricks:default_linux_toolchain")
 ```
+
+Add the flag `--build_python_zip` following to your `.bazelrc` to create a python executable zip:
+
+```
+run --build_python_zip
+```
+
 ## Simple usage
 
 The rules_databricks target can be used as executables for custom actions or can be executed directly by Bazel. For example, you can run:

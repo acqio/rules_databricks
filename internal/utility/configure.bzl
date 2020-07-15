@@ -56,7 +56,7 @@ configure = rule(
             mandatory = True
         ),
         "_reading_from_file": attr.label(
-            default = Label("//internal/utils/reading_from_file:main.par"),
+            default = Label("//internal/utils/reading_from_file:main"),
             executable = True,
             cfg = "host"
         ),

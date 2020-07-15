@@ -20,7 +20,7 @@ _common_attr  = {
         allow_single_file = True,
     ),
     "_stamper": attr.label(
-        default = Label("//internal/utils/stamper:stamper.par"),
+        default = Label("//internal/utils/stamper:stamper"),
         executable = True,
         cfg = "host",
     ),
@@ -54,7 +54,7 @@ def _impl(ctx):
         'CLI="%s"' % properties.cli,
         'JQ_TOOL="%s"' % properties.jq_tool,
         'DEFAULT_OPTIONS="--profile %s"'% configure_info.profile,
-        'CMD="%s %s"' % (ctx.attr._api,api_cmd),
+        'CMD="%s %s $@"' % (ctx.attr._api,api_cmd),
         'CLUSTER_NAME="%s"' % configure_info.cluster_name,
         'CONFIG_FILE_INFO="$(cat %s)"' % configure_info.config_file_info.short_path
     ]

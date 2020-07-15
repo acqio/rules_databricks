@@ -7,7 +7,7 @@ def _toolchain_configure_impl(repository_ctx):
         tool_path = repository_ctx.which("databricks")
 
     client_config = repository_ctx.attr.client_config or "/root/.databrickscfg"
-    tool_target = "@rules_databricks//databricks:cli.par"
+    tool_target = "@rules_databricks//databricks:cli"
     jq_tool_target = "@jq//file:file"
 
     repository_ctx.template(
