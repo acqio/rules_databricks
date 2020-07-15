@@ -8,5 +8,3 @@ databricks_deps()
 
 load("@rules_databricks//databricks:pip_repositories.bzl", databricks_pip_deps = "pip_deps")
 databricks_pip_deps()
-
-register_toolchains("@rules_databricks//toolchain/databricks:default_linux_toolchain")

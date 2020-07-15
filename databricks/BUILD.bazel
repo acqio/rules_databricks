@@ -39,6 +39,7 @@ par_binary(
         requirement("urllib3"),
     ],
     visibility = ["//visibility:public"],
-    python_version = "PY3",
+    python_version = "PY2",
+    srcs_version = "PY2",
     main = "@databricks_src//:databricks_cli/cli.py",
 )
