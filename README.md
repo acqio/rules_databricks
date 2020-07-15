@@ -23,7 +23,7 @@ http_archive(
     urls = [
         "https://github.com/acqio/rules_databricks/archive/v0.5.tar.gz"
     ],
-    sha256 = "2c7800a2f1ba4e8ad8b31f86f0dcc366f65011f09c963a5d68b8df4ab1c84bae",
+    sha256 = "b21301eb81b41162ae612ff708b8466ab94db55b111605a492708d03d74e532c",
     strip_prefix = "rules_databricks-0.5",
 )
 
