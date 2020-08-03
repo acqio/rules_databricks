@@ -6,7 +6,7 @@ This repository contains rules for interacting with Databricks configurations/cl
 
 ## Requirements
 
-* Python Version > 2.7.9 or > 3.6
+* Python Version > 3.6
 
 ## Setup
 
