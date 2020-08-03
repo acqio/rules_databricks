@@ -47,13 +47,13 @@ def _impl(ctx):
         'CLI="%s"' % properties.cli,
         'CLUSTER_NAME="%s"' % configure_info.cluster_name,
         'CMD="%s %s $@"' % (ctx.attr._api, api_cmd),
-        'DATABRICKS_CONFIG_FILE="%s"' % configure_info.config_file,
+        'export DATABRICKS_CONFIG_FILE="%s"' % configure_info.config_file,
         'DEFAULT_OPTIONS="--profile %s"' % configure_info.profile,
         'JQ_TOOL="%s"' % properties.jq_tool,
         "PROFILE_CONFIG_FILE=$(%s $DEFAULT_OPTIONS --config_file $DATABRICKS_CONFIG_FILE)" % reader_config_file,
     ]
 
-    cmd_template = "$CLI $CMD --debug $DEFAULT_OPTIONS {OPTIONS}"
+    cmd_template = "$CLI $CMD $DEFAULT_OPTIONS {OPTIONS}"
 
     if api_cmd in ["install", "uninstall"]:
         if ctx.attr.dbfs:

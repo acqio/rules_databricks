@@ -61,7 +61,7 @@ def _impl(ctx):
         'CLI="%s"' % properties.cli,
         'CLUSTER_NAME="%s"' % configure_info.cluster_name,
         'CMD="%s %s $@"' % (ctx.attr._api, api_cmd),
-        'DATABRICKS_CONFIG_FILE="%s"' % configure_info.config_file,
+        'export DATABRICKS_CONFIG_FILE="%s"' % configure_info.config_file,
         'DEFAULT_OPTIONS="--profile %s"' % configure_info.profile,
         "PROFILE_CONFIG_FILE=$(%s $DEFAULT_OPTIONS --config_file $DATABRICKS_CONFIG_FILE)" % reader_config_file,
         'JQ_TOOL="%s"' % properties.jq_tool,
@@ -191,7 +191,7 @@ def fs(name, **kwargs):
                 stamp.count("}") == 1 and stamp.rindex("}") == stamp.find("}")
             )
         ):
-            fail("The stamp string is badly formatted (eg {BUILD_TIMESTAMP}):\n" + str(stamp))
+            fail("The stamp string is badly formatted (eg {BUILD_TIMESTAMP}): %s" % stamp)
 
     _fs_ls(name = name, **kwargs)
     _fs_ls(name = name + ".ls", **kwargs)
