@@ -20,44 +20,30 @@ import os
 
 parser = argparse.ArgumentParser(description='Resolve stamp references.')
 
-parser.add_argument('--config_file', action='store', help='')
-parser.add_argument('--profile', action='store', help='')
-parser.add_argument('--output', action='store', help='')
+parser.add_argument('--config_file', action='store', help='', required=True)
+parser.add_argument('--profile', action='store', help='', required=True)
 
 def main():
 
     args = parser.parse_args()
     config_file = args.config_file or ""
     profile = args.profile or ""
-    outfile = args.output or ""
-
-    data = {}
-    data['status'] = ''
-    data['message'] = ''
 
     try:
         if not os.path.isfile(config_file):
-            data['status'] = 'error'
-            data['message'] = 'The databricks configuration file does not exist at ' + str(config_file)
+            raise Exception('The Databricks configuration file does not exist at "{}"'.format(str(config_file)))
         else:
             config_parser = configparser.ConfigParser()
             config_parser.read(config_file)
             section_profile = config_parser[profile]
-            data['status'] = 'success'
-            data['message'] = 'Profile exists'
-            data['config'] = {
-                'host': section_profile.get('host')
-            }
+            print('Using the profile: "{}"'.format(profile))
     except IOError:
-        data['status'] = 'error'
-        data['message'] = 'The databricks configuration file does not accessible in ' + str(config_file)
+        raise Exception('The Databricks configuration file does not accessible at: {}'.format(str(config_file)))
     except KeyError as error:
-        data['status'] = 'error'
-        data['message'] = 'The ' + str(profile) + \
-            ' profile does not exist in the configuration file at: ' + str(config_file)
-
-    with open(outfile, 'w') as f:
-        json.dump(data, f)
+        raise Exception(
+            'The "{}" profile does not exist in the Databricks configuration file at: {}'.format(
+                str(profile), str(config_file))
+            )
 
 if __name__ == '__main__':
     main()
