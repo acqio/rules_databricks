@@ -23,15 +23,15 @@ filegroup(
     srcs = [
         "BUILD.bazel",
         "WORKSPACE",
-        "//toolchain:all_files",
         "//databricks:all_files",
+        "//toolchain:all_files",
     ],
     visibility = ["//visibility:public"],
 )
 
 alias(
     name = "cli",
-    actual = "@rules_databricks//databricks:cli"
+    actual = "@rules_databricks//databricks:cli",
 )
 
 py_runtime(
