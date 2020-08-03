@@ -29,6 +29,9 @@ filegroup(
 py_binary(
     name = "cli",
     srcs = ["@databricks_src//:src"],
+    main = "@databricks_src//:databricks_cli/cli.py",
+    python_version = "PY3",
+    visibility = ["//visibility:public"],
     deps = [
         requirement("certifi"),
         requirement("click"),
@@ -39,7 +42,4 @@ py_binary(
         requirement("tabulate"),
         requirement("urllib3"),
     ],
-    visibility = ["//visibility:public"],
-    python_version = "PY3",
-    main = "@databricks_src//:databricks_cli/cli.py",
 )
