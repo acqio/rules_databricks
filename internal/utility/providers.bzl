@@ -1,17 +1,16 @@
-FsInfo = provider(
-    doc = "",
-    fields = {
-        "files": "",
-        "dbfs_files_path": "List with path in dbfs of uploaded files",
-        "stamp_file": "",
-    },
+ConfigureInfo = provider(
+    fields = [
+        "profile",
+        "cluster_name",
+        "config_file",
+    ],
 )
 
-ConfigureInfo = provider(
-    fields = {
-        "profile": "The profile defined in the databricks configure",
-        "cluster_name": "The name of the cluster that the rules will interact with.",
-        "debug": "Shows full stack trace on error",
-        "config_file": "",
-    },
+FsInfo = provider(
+    doc = "",
+    fields = [
+        "dbfs_files_path",
+        "files",
+        "stamp_file",
+    ],
 )
