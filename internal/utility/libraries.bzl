@@ -53,7 +53,7 @@ def _impl(ctx):
         'READER_CONFIG_FILE="%s"' % reader_config_file,
     ]
 
-    cmd_template = "$CLI $CMD $DEFAULT_OPTIONS {OPTIONS}"
+    cmd_template = "exe $CLI $CMD $DEFAULT_OPTIONS {OPTIONS}"
 
     if api_cmd in ["install", "uninstall"]:
         if ctx.attr.dbfs:
@@ -66,7 +66,7 @@ def _impl(ctx):
             variables += ["STAMP=$(cat %s)" % dbfs[FsInfo].stamp_file.short_path]
 
         if api_cmd == "install":
-            cmd += ["exe '%s'" % dbfs[DefaultInfo].files_to_run.executable.short_path]
+            cmd += ["'%s' $@" % dbfs[DefaultInfo].files_to_run.executable.short_path]
 
         cmd += [cmd_template.format(OPTIONS = "--jar %s" % f) for f in dbfs[FsInfo].dbfs_files_path]
 
@@ -83,7 +83,7 @@ def _impl(ctx):
                     ]
 
     if api_cmd == "cluster-status":
-        cmd += ["%s | $JQ_TOOL ." % cmd_template.format(OPTIONS = "")]
+        cmd += ["%s" % cmd_template.format(OPTIONS = "")]
 
     ctx.actions.expand_template(
         is_executable = True,

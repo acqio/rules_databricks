@@ -67,7 +67,7 @@ def _impl(ctx):
         'READER_CONFIG_FILE="%s"' % reader_config_file,
     ]
 
-    cmd_template = "$CLI $CMD $DEFAULT_OPTIONS {OPTIONS} {ARGS}"
+    cmd_template = "exe $CLI $CMD $DEFAULT_OPTIONS {OPTIONS} {ARGS}"
 
     fsinfo_stampfile = ""
     if ctx.attr.stamp:
