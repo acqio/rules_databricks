@@ -52,7 +52,7 @@ def repositories():
         ],
         sha256 = "99c307e68561deca48c46b4d4ee66701883fe38d51dcd199fa46eed24e4ad12c",
         strip_prefix = "databricks-cli-0.11.0",
-        build_file = "@//databricks:BUILD.bazel.databricks",
+        build_file = "@rules_databricks//databricks:BUILD.bazel.databricks",
     )
 
     databricks_toolchain_configure(name = "databricks_config")
