@@ -13,15 +13,13 @@
 # limitations under the License.
 """Resolve stamp variables."""
 import configparser
-import json
 import argparse
-import sys
 import os
 
-parser = argparse.ArgumentParser(description='Resolve stamp references.')
+parser = argparse.ArgumentParser(description="Resolve stamp references.")
 
-parser.add_argument('--config_file', action='store', help='', required=True)
-parser.add_argument('--profile', action='store', help='', required=True)
+parser.add_argument("--config_file", action="store", help="", required=True)
+parser.add_argument("--profile", action="store", help="", required=True)
 
 def main():
 
@@ -31,19 +29,18 @@ def main():
 
     try:
         if not os.path.isfile(config_file):
-            raise Exception('The Databricks configuration file does not exist at "{}"'.format(str(config_file)))
+            raise Exception("The Databricks configuration file does not exist at '{}'".format(str(config_file)))
         else:
             config_parser = configparser.ConfigParser()
             config_parser.read(config_file)
             section_profile = config_parser[profile]
-            print('Using the profile: "{}"'.format(profile))
+            print("Using the profile: '{}'".format(profile))
     except IOError:
-        raise Exception('The Databricks configuration file does not accessible at: {}'.format(str(config_file)))
+        raise Exception("The Databricks configuration file does not accessible at '{}'".format(str(config_file)))
     except KeyError as error:
         raise Exception(
-            'The "{}" profile does not exist in the Databricks configuration file at: {}'.format(
-                str(profile), str(config_file))
-            )
+            "The '{}' profile does not exist in the Databricks configuration file at '{}'".format(
+                str(profile), str(config_file)))
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

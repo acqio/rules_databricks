@@ -10,7 +10,7 @@ databricks_fs(
     name = "fs",
     configure = ":cfg",
     files = ["dummy.jar"],
-    stamp = "{BUILD_TIMESTAMP}",
+    stamp = "{STABLE_GIT_DATE}",
 )
 
 databricks_libraries(

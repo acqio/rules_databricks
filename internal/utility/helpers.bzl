@@ -3,6 +3,9 @@ DBFS_PROPERTIES = {
     "dbfs_prefix_filepath": "bazel/",
 }
 
+CHECK_CONFIG_FILE = """
+$READER_CONFIG_FILE $DEFAULT_OPTIONS --config_file $DATABRICKS_CONFIG_FILE
+"""
 CMD_CLUSTER_INFO = """
 CLUSTER_ID=$($CLI clusters list $DEFAULT_OPTIONS --output JSON | \
 $JQ_TOOL -r \'(.clusters[] | select (.cluster_name=="\'$CLUSTER_NAME\'")).cluster_id\')

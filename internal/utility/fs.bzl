@@ -1,6 +1,6 @@
 load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load("@bazel_skylib//lib:paths.bzl", "paths")
-load(":helpers.bzl", "DBFS_PROPERTIES", "resolve_stamp", "toolchain_properties")
+load(":helpers.bzl", "CHECK_CONFIG_FILE", "DBFS_PROPERTIES", "resolve_stamp", "toolchain_properties")
 load(":providers.bzl", "ConfigureInfo", "FsInfo")
 
 _DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
@@ -63,8 +63,8 @@ def _impl(ctx):
         'CMD="%s %s $@"' % (ctx.attr._api, api_cmd),
         'export DATABRICKS_CONFIG_FILE="%s"' % configure_info.config_file,
         'DEFAULT_OPTIONS="--profile %s"' % configure_info.profile,
-        "PROFILE_CONFIG_FILE=$(%s $DEFAULT_OPTIONS --config_file $DATABRICKS_CONFIG_FILE)" % reader_config_file,
         'JQ_TOOL="%s"' % properties.jq_tool,
+        'READER_CONFIG_FILE="%s"' % reader_config_file,
     ]
 
     cmd_template = "$CLI $CMD $DEFAULT_OPTIONS {OPTIONS} {ARGS}"
@@ -120,7 +120,7 @@ def _impl(ctx):
         template = ctx.file._script_tpl,
         substitutions = {
             "%{VARIABLES}": "\n".join(variables),
-            "%{CONDITIONS}": "",
+            "%{CONDITIONS}": CHECK_CONFIG_FILE,
             "%{CMD}": " && ".join(cmd),
         },
     )
