@@ -15,7 +15,6 @@
 package(default_visibility = ["//visibility:private"])
 
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
-load(":toolchain.bzl", "databricks_toolchain")
 
 filegroup(
     name = "all_files",
@@ -32,13 +31,6 @@ bzl_library(
 
 toolchain_type(
     name = "toolchain_type",
-)
-
-databricks_toolchain(
-    name = "default_toolchain_impl",
-    client_config = "~/.databrickscfg",
-    tool_target = "@rules_databricks//databricks:cli",
-    visibility = ["//visibility:public"],
 )
 
 toolchain(

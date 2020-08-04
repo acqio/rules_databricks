@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 load(":providers.bzl", "ConfigureInfo")
-load("//internal/utils:utils.bzl", "resolve_config_file")
+
 _DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
 
 def _impl(ctx):
@@ -23,25 +23,12 @@ def _impl(ctx):
     if not cluster_name.strip():
         fail("The cluster name value is mandatory.")
 
-    config_file_info = ctx.actions.declare_file(ctx.attr.name + ".config_file_info")
-    resolve_config_file(
-        ctx,
-        ctx.toolchains[_DATABRICKS_TOOLCHAIN].info.client_config,
-        profile,
-        config_file_info
-    )
-
     return [
-        DefaultInfo(
-            data_runfiles = ctx.runfiles (
-                transitive_files = depset([config_file_info])
-            )
-        ),
         ConfigureInfo(
             profile = profile,
             cluster_name = cluster_name,
-            config_file_info = config_file_info
-        )
+            config_file = ctx.toolchains[_DATABRICKS_TOOLCHAIN].info.config_file,
+        ),
     ]
 
 configure = rule(
@@ -50,15 +37,10 @@ configure = rule(
     attrs = {
         "profile": attr.string(
             default = "DEFAULT",
-            mandatory = True
+            mandatory = True,
         ),
         "cluster_name": attr.string(
-            mandatory = True
+            mandatory = True,
         ),
-        "_reading_from_file": attr.label(
-            default = Label("//internal/utils/reading_from_file:main"),
-            executable = True,
-            cfg = "host"
-        ),
-    }
+    },
 )

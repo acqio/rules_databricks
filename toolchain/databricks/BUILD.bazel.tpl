@@ -20,8 +20,8 @@ load("@rules_databricks//toolchain/databricks:toolchain.bzl", "databricks_toolch
 
 databricks_toolchain(
     name = "toolchain",
-    client_config = "%{DATABRICKS_CONFIG}",
-    tool_path = "%{DATABRICKS_TOOL_PATH}",
-    tool_target = "%{DATABRICKS_TOOL_TARGET}",
+    config_file = "%{CONFIG_FILE}",
     jq_tool_target = "%{JQ_TOOL_TARGET}",
+    tool_path = "%{TOOL_PATH}",
+    tool_target = "%{TOOL_TARGET}",
 )

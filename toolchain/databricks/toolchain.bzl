@@ -18,24 +18,24 @@ This module defines azure toolchain rules
 DataBricksToolchainInfo = provider(
     doc = "Docker toolchain rule parameters",
     fields = {
-        "client_config": "A custom directory for the databricks client " +
-                         "config.json. If DATABRICKS_CONFIG is not specified, " +
-                         "the value of the DATABRICKS_CONFIG environment variable " +
-                         "will be used. DATABRICKS_CONFIG is not defined, the " +
-                         "home directory will be used.",
+        "config_file": "A configured path to the Databricks configuration file. " +
+                       "If databricks_config_file is not specified, the value " +
+                       "of the DATABRICKS_CONFIG_FILE environment variable will be used. " +
+                       "DATABRICKS_CONFIG_FILE is not defined, the default set for the " +
+                       "databricks tool (typically, the home directory) will be used.",
+        "jq_tool_target": "A jq executable target to downloaded.",
         "tool_path": "Path to the databricks executable",
         "tool_target": "A databricks cli executable target built from source or downloaded.",
-        "jq_tool_target": "A jq executable target to downloaded.",
     },
 )
 
 def _databricks_toolchain_impl(ctx):
     toolchain_info = platform_common.ToolchainInfo(
         info = DataBricksToolchainInfo(
-            client_config = ctx.attr.client_config,
+            config_file = ctx.attr.config_file,
+            jq_tool_target = ctx.attr.jq_tool_target,
             tool_path = ctx.attr.tool_path,
             tool_target = ctx.attr.tool_target,
-            jq_tool_target = ctx.attr.jq_tool_target
         ),
     )
     return [toolchain_info]
@@ -45,24 +45,24 @@ def _databricks_toolchain_impl(ctx):
 databricks_toolchain = rule(
     implementation = _databricks_toolchain_impl,
     attrs = {
-        "client_config": attr.string(
+        "jq_tool_target": attr.label(
+            doc = "Target to build jq from source.",
+            executable = True,
+            cfg = "host",
+        ),
+        "config_file": attr.string(
             default = "",
-            doc = "A custom directory for the databricks client config.json. If " +
-                  "DATABRICKS_CONFIG is not specified, the value of the " +
-                  "DATABRICKS_CONFIG environment variable will be used. " +
-                  "DATABRICKS_CONFIG is not defined, the home directory will be " +
-                  "used.",
+            doc = """A configured path to the Databricks configuration file.
+                  If databricks_config_file is not specified, the value
+                  of the DATABRICKS_CONFIG_FILE environment variable will be used.
+                  DATABRICKS_CONFIG_FILE is not defined, the default set for the
+                  databricks tool (typically, the home directory) will be used.""",
         ),
         "tool_path": attr.string(
             doc = "Path to the binary.",
         ),
         "tool_target": attr.label(
             doc = "Target to build databicks_cli from source.",
-            executable = True,
-            cfg = "host",
-        ),
-        "jq_tool_target": attr.label(
-            doc = "Target to build jq from source.",
             executable = True,
             cfg = "host",
         ),
