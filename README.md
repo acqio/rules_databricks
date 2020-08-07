@@ -21,10 +21,10 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "rules_databricks",
     urls = [
-        "https://github.com/acqio/rules_databricks/archive/v0.5.tar.gz"
+        "https://github.com/acqio/rules_databricks/archive/v0.6.tar.gz"
     ],
-    sha256 = "b21301eb81b41162ae612ff708b8466ab94db55b111605a492708d03d74e532c",
-    strip_prefix = "rules_databricks-0.5",
+    sha256 = "8b18edaf3b4182be9b241a968840670e5600f1c9cca69cb6230c9b199ecdab46",
+    strip_prefix = "rules_databricks-0.6",
 )
 
 load("@rules_databricks//databricks:repositories.bzl", databricks_repositories = "repositories")
