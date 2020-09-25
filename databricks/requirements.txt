@@ -1,9 +1,10 @@
 # reference: https://github.com/databricks/databricks-cli/blob/0.11.0/setup.py
 certifi
-click
-configparser
+click>=6.7
+configparser>=0.3.5
 PyYAML
-requests
-six
-tabulate
+requests>=2.17.3
+six>=1.10.0
+tabulate>=0.7.7
 urllib3
+tenacity>=6.2.0

@@ -3,7 +3,7 @@ load("//:index.bzl", "databricks_configure", "databricks_fs", "databricks_librar
 databricks_configure(
     name = "cfg",
     cluster_name = "dev-cluster-dbk",
-    profile = "tst",
+    profile = "dev",
 )
 
 databricks_fs(

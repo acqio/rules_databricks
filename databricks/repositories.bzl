@@ -48,11 +48,20 @@ def repositories():
     http_archive(
         name = "databricks_src",
         urls = [
-            "https://github.com/databricks/databricks-cli/archive/0.11.0.tar.gz",
+            "https://github.com/databricks/databricks-cli/archive/0.12.0.tar.gz",
         ],
-        sha256 = "99c307e68561deca48c46b4d4ee66701883fe38d51dcd199fa46eed24e4ad12c",
-        strip_prefix = "databricks-cli-0.11.0",
-        build_file = "@rules_databricks//databricks:BUILD.bazel.databricks",
-    )
+        sha256 = "89eadd473838be03a45635b785741e23c4a2cce9050e157f78fee04be2af0f0c",
+        strip_prefix = "databricks-cli-0.12.0",
+        build_file_content = """
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "src",
+    srcs = glob(
+        ["databricks_cli/**/*.py"],
+    ),
+    visibility = ["//visibility:public"],
+)
+""")
 
     databricks_toolchain_configure(name = "databricks_config")
