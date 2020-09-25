@@ -1,14 +1,8 @@
 load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load("@bazel_skylib//lib:paths.bzl", "paths")
-load(":providers.bzl", "ConfigureInfo", "FsInfo")
-load("//databricks/private/common:helpers.bzl",
-    "CHECK_CONFIG_FILE",
-    "DBFS_PROPERTIES",
-    "resolve_stamp",
-    "toolchain_properties"
-)
-
-_DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
+load("//databricks/private:providers/providers.bzl", "ConfigureInfo", "FsInfo")
+load("//databricks/private:common/common.bzl", "CHECK_CONFIG_FILE", "DATABRICKS_TOOLCHAIN", "DBFS_PROPERTIES")
+load("//databricks/private:common/helpers.bzl", "resolve_stamp", "toolchain_properties")
 
 def _aspect_files(ctx):
     return struct(
@@ -25,12 +19,12 @@ _common_attr = {
         allow_single_file = True,
     ),
     "_stamper": attr.label(
-        default = Label("//databricks/private/common/stamper:stamper"),
+        default = Label("//databricks/private/cmd/stamper:stamper"),
         executable = True,
         cfg = "host",
     ),
     "_config_file_reader": attr.label(
-        default = Label("//databricks/private/common/config_file_reader:main"),
+        default = Label("//databricks/private/cmd/config_file_reader:main"),
         executable = True,
         cfg = "host",
     ),
@@ -52,7 +46,7 @@ _common_attr = {
 }
 
 def _impl(ctx):
-    properties = toolchain_properties(ctx, _DATABRICKS_TOOLCHAIN)
+    properties = toolchain_properties(ctx, DATABRICKS_TOOLCHAIN)
     aspects = _aspect_files(ctx)
     api_cmd = ctx.attr._command
     cmd = []
@@ -149,7 +143,7 @@ def _impl(ctx):
 
 _fs_ls = rule(
     executable = True,
-    toolchains = [_DATABRICKS_TOOLCHAIN],
+    toolchains = [DATABRICKS_TOOLCHAIN],
     implementation = _impl,
     attrs = dicts.add(
         _common_attr,
@@ -162,7 +156,7 @@ _fs_ls = rule(
 _fs_cp = rule(
     implementation = _impl,
     executable = True,
-    toolchains = [_DATABRICKS_TOOLCHAIN],
+    toolchains = [DATABRICKS_TOOLCHAIN],
     attrs = dicts.add(
         _common_attr,
         {
@@ -174,7 +168,7 @@ _fs_cp = rule(
 _fs_rm = rule(
     implementation = _impl,
     executable = True,
-    toolchains = [_DATABRICKS_TOOLCHAIN],
+    toolchains = [DATABRICKS_TOOLCHAIN],
     attrs = dicts.add(
         _common_attr,
         {
