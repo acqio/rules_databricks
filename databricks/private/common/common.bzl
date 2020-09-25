@@ -10,8 +10,7 @@ $READER_CONFIG_FILE $DEFAULT_OPTIONS --config_file $DATABRICKS_CONFIG_FILE
 """
 
 CMD_CLUSTER_INFO = """
-CLUSTER_ID=$($CLI clusters list $DEFAULT_OPTIONS --output JSON | \
-$JQ_TOOL -r \'(.clusters[] | select (.cluster_name=="\'$CLUSTER_NAME\'")).cluster_id\')
+CLUSTER_ID=$($CLI clusters get $DEFAULT_OPTIONS --cluster-name $CLUSTER_NAME | $JQ_TOOL -r .cluster_id)
 
 if [ "$CLUSTER_ID" == "" ] ; then
     echo "FAIL: Databricks cluster info"

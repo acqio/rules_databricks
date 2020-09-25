@@ -41,5 +41,6 @@ py_binary(
         requirement("six"),
         requirement("tabulate"),
         requirement("urllib3"),
+        requirement("tenacity"),
     ],
 )
