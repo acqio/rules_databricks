@@ -6,17 +6,20 @@ DBFS_PROPERTIES = {
 }
 
 CHECK_CONFIG_FILE = """
-$READER_CONFIG_FILE $DEFAULT_OPTIONS --config_file $DATABRICKS_CONFIG_FILE
+$READER_CONFIG_FILE ${DEFAULT_OPTIONS} --config_file ${DATABRICKS_CONFIG_FILE}
 """
 
 CMD_CLUSTER_INFO = """
-CLUSTER_ID=$($CLI clusters get $DEFAULT_OPTIONS --cluster-name $CLUSTER_NAME | $JQ_TOOL -r .cluster_id)
+set +e
+CLUSTER_INFO=$(${CLI} clusters get ${DEFAULT_OPTIONS} --cluster-name ${CLUSTER_NAME})
+set -e
 
-if [ "$CLUSTER_ID" == "" ] ; then
+if [[ $(echo $CLUSTER_INFO | grep -iF "erro") ]]; then
     echo "FAIL: Databricks cluster info"
-    echo "OUTPUT:" $(echo $CLUSTER_ID | $JQ_TOOL -r .message)
+    echo "OUTPUT: ${CLUSTER_INFO}"
     exit 1
 fi
 
-DEFAULT_OPTIONS="${DEFAULT_OPTIONS} --cluster-id $CLUSTER_ID"
+CLUSTER_ID=$(echo ${CLUSTER_INFO} | ${JQ_TOOL} -r .cluster_id)
+DEFAULT_OPTIONS="${DEFAULT_OPTIONS} --cluster-id ${CLUSTER_ID}"
 """
