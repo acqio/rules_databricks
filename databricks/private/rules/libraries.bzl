@@ -1,8 +1,7 @@
 load("@bazel_skylib//lib:dicts.bzl", "dicts")
-load(":providers.bzl", "ConfigureInfo", "FsInfo")
-load("//databricks/private/common:helpers.bzl", "CHECK_CONFIG_FILE", "CMD_CLUSTER_INFO", "toolchain_properties")
-
-_DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
+load("//databricks/private:providers/providers.bzl", "ConfigureInfo", "FsInfo")
+load("//databricks/private:common/common.bzl", "CHECK_CONFIG_FILE", "CMD_CLUSTER_INFO", "DATABRICKS_TOOLCHAIN")
+load("//databricks/private:common/helpers.bzl", "toolchain_properties")
 
 _common_attr = {
     "_script_tpl": attr.label(
@@ -10,7 +9,7 @@ _common_attr = {
         allow_single_file = True,
     ),
     "_config_file_reader": attr.label(
-        default = Label("//databricks/private/common/config_file_reader:main"),
+        default = Label("//databricks/private/cmd/config_file_reader:main"),
         executable = True,
         cfg = "host",
     ),
@@ -34,7 +33,7 @@ _common_attr = {
 }
 
 def _impl(ctx):
-    properties = toolchain_properties(ctx, _DATABRICKS_TOOLCHAIN)
+    properties = toolchain_properties(ctx, DATABRICKS_TOOLCHAIN)
     api_cmd = ctx.attr._command
     cmd = []
     configure_info = ctx.attr.configure[ConfigureInfo]
@@ -108,7 +107,7 @@ def _impl(ctx):
 _libraries_status = rule(
     implementation = _impl,
     executable = True,
-    toolchains = [_DATABRICKS_TOOLCHAIN],
+    toolchains = [DATABRICKS_TOOLCHAIN],
     attrs = dicts.add(
         _common_attr,
         {
@@ -120,7 +119,7 @@ _libraries_status = rule(
 _libraries_install = rule(
     implementation = _impl,
     executable = True,
-    toolchains = [_DATABRICKS_TOOLCHAIN],
+    toolchains = [DATABRICKS_TOOLCHAIN],
     attrs = dicts.add(
         _common_attr,
         {
@@ -132,7 +131,7 @@ _libraries_install = rule(
 _libraries_uninstall = rule(
     implementation = _impl,
     executable = True,
-    toolchains = [_DATABRICKS_TOOLCHAIN],
+    toolchains = [DATABRICKS_TOOLCHAIN],
     attrs = dicts.add(
         _common_attr,
         {

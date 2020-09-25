@@ -11,9 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-load(":providers.bzl", "ConfigureInfo")
-
-_DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
+load("//databricks/private:providers/providers.bzl", "ConfigureInfo")
+load("//databricks/private:common/common.bzl", "DATABRICKS_TOOLCHAIN")
 
 def _impl(ctx):
     profile = ctx.attr.profile or ""
@@ -27,13 +26,13 @@ def _impl(ctx):
         ConfigureInfo(
             profile = profile,
             cluster_name = cluster_name,
-            config_file = ctx.toolchains[_DATABRICKS_TOOLCHAIN].info.config_file,
+            config_file = ctx.toolchains[DATABRICKS_TOOLCHAIN].info.config_file,
         ),
     ]
 
 configure = rule(
     implementation = _impl,
-    toolchains = [_DATABRICKS_TOOLCHAIN],
+    toolchains = [DATABRICKS_TOOLCHAIN],
     attrs = {
         "profile": attr.string(
             default = "DEFAULT",
