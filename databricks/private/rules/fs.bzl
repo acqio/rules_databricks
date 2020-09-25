@@ -1,7 +1,12 @@
 load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load("@bazel_skylib//lib:paths.bzl", "paths")
-load(":helpers.bzl", "CHECK_CONFIG_FILE", "DBFS_PROPERTIES", "resolve_stamp", "toolchain_properties")
 load(":providers.bzl", "ConfigureInfo", "FsInfo")
+load("//databricks/private/common:helpers.bzl",
+    "CHECK_CONFIG_FILE",
+    "DBFS_PROPERTIES",
+    "resolve_stamp",
+    "toolchain_properties"
+)
 
 _DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
 
@@ -16,16 +21,16 @@ def _aspect_files(ctx):
 
 _common_attr = {
     "_script_tpl": attr.label(
-        default = Label("//internal/utility:script.sh.tpl"),
+        default = Label("//databricks/private/rules:script.sh.tpl"),
         allow_single_file = True,
     ),
     "_stamper": attr.label(
-        default = Label("//internal/utils/stamper:stamper"),
+        default = Label("//databricks/private/common/stamper:stamper"),
         executable = True,
         cfg = "host",
     ),
     "_config_file_reader": attr.label(
-        default = Label("//internal/utils/config_file_reader:main"),
+        default = Label("//databricks/private/common/config_file_reader:main"),
         executable = True,
         cfg = "host",
     ),

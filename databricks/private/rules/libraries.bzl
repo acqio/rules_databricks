@@ -1,16 +1,16 @@
 load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load(":providers.bzl", "ConfigureInfo", "FsInfo")
-load(":helpers.bzl", "CHECK_CONFIG_FILE", "CMD_CLUSTER_INFO", "toolchain_properties")
+load("//databricks/private/common:helpers.bzl", "CHECK_CONFIG_FILE", "CMD_CLUSTER_INFO", "toolchain_properties")
 
 _DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
 
 _common_attr = {
     "_script_tpl": attr.label(
-        default = Label("//internal/utility:script.sh.tpl"),
+        default = Label("//databricks/private/rules:script.sh.tpl"),
         allow_single_file = True,
     ),
     "_config_file_reader": attr.label(
-        default = Label("//internal/utils/config_file_reader:main"),
+        default = Label("//databricks/private/common/config_file_reader:main"),
         executable = True,
         cfg = "host",
     ),
