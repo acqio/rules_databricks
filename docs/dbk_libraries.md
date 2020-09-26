@@ -1,15 +1,15 @@
-<a name="databricks_libraries"></a>
-## databricks_libraries
+<a name="dbk_libraries.md"></a>
+## dbk_libraries.md
 
 ```python
-databricks_libraries(name, configure, dbfs, maven_info, maven_package_exclusion)
+dbk_libraries.md(name, configure, dbfs, maven_info, maven_package_exclusion)
 ```
 
 For example, if the BUILD file contains:
 
 ```python
 
-databricks_libraries(
+dbk_libraries.md(
   name = "lib"
   configure = ":cfg",
   dbfs = ":src.cp",
@@ -48,7 +48,7 @@ databricks_libraries(
       <td><code>configure</code></td>
       <td>
         <code>Label, required</code>
-        <p>Label of `databricks_configure` target.</p>
+        <p>Label of <code>dbk_configure</code> target.</p>
         <p>Specify the databricks cluster settings.</p>
         <p><code>configure = ":cfg"</code></p>
       </td>
@@ -92,7 +92,7 @@ databricks_libraries(
 
 ## Usage
 
-The `databricks_libraries` rules expose a collection of actions. We will follow the `:lib`
+The `dbk_libraries.md` rules expose a collection of actions. We will follow the `:lib`
 target from the example above.
 
 ### Status

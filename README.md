@@ -21,10 +21,10 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "rules_databricks",
     urls = [
-        "https://github.com/acqio/rules_databricks/archive/v0.6.tar.gz"
+        "https://github.com/acqio/rules_databricks/archive/<revision>.tar.gz"
     ],
-    sha256 = "8b18edaf3b4182be9b241a968840670e5600f1c9cca69cb6230c9b199ecdab46",
-    strip_prefix = "rules_databricks-0.6",
+    sha256 = "<sha256>",
+    strip_prefix = "rules_databricks-<revision>",
 )
 
 load("@rules_databricks//databricks:repositories.bzl", databricks_repositories = "repositories")
@@ -70,6 +70,9 @@ To test that your authentication information is working, try a quick test like `
 
 ## Rules
 
-* [databricks_configure](docs/databricks_configure.md)
-* [databricks_fs](docs/databricks_fs.md)
-* [databricks_libraries](docs/databricks_libraries.md)
+* [dbk_configure](docs/dbk_configure.md)
+* [dbk_fs](docs/dbk_fs.md)
+* [dbk_libraries](docs/dbk_libraries.md)
+
+# Things that don't work yet
+* Support for Windows and Mac. For the moment everything assumes your host and target is `x86_64-unknown-linux-gnu`

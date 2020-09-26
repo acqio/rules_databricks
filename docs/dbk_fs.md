@@ -1,15 +1,15 @@
-<a name="databricks_fs"></a>
-## databricks_fs
+<a name="dbk_fs"></a>
+## dbk_fs
 
 ```python
-databricks_fs(name, configure, files, stamp)
+dbk_fs(name, configure, files, stamp)
 ```
 
 For example, if the BUILD file contains:
 
 ```python
 
-databricks_fs(
+dbk_fs(
   name = "src"
   configure = ":cfg",
   files = [":src.jar"],
@@ -39,7 +39,7 @@ databricks_fs(
       <td><code>configure</code></td>
       <td>
         <code>Label, required</code>
-        <p>Label of `databricks_configure` target.</p>
+        <p>Label of <code>dbk_configure</code> target.</p>
         <p>Specify the databricks cluster settings.</p>
         <p><code>configure = ":cfg"</code></p>
       </td>
@@ -66,7 +66,7 @@ databricks_fs(
 
 ## Usage
 
-The `databricks_fs` rules expose a collection of actions. We will follow the `:src`
+The `dbk_fs` rules expose a collection of actions. We will follow the `:src`
 target from the example above.
 
 ### List
