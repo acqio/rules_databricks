@@ -2,7 +2,7 @@ load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load("@bazel_skylib//lib:paths.bzl", "paths")
 load("//databricks/private:providers/providers.bzl", "ConfigureInfo", "FsInfo")
 load("//databricks/private:common/common.bzl", "CHECK_CONFIG_FILE", "DATABRICKS_TOOLCHAIN", "DBFS_PROPERTIES")
-load("//databricks/private:common/helpers.bzl", "resolve_stamp", "toolchain_properties")
+load("//databricks/private:common/helpers.bzl", "helpers")
 
 def _aspect_files(ctx):
     return struct(
@@ -46,15 +46,21 @@ _common_attr = {
 }
 
 def _impl(ctx):
-    properties = toolchain_properties(ctx, DATABRICKS_TOOLCHAIN)
+    properties = helpers.toolchain_properties(ctx, DATABRICKS_TOOLCHAIN)
     aspects = _aspect_files(ctx)
     api_cmd = ctx.attr._command
     cmd = []
 
-    configure_info = ctx.attr.configure[ConfigureInfo]
-
+    configure = ctx.attr.configure
+    configure_info = configure[ConfigureInfo]
     reader_config_file = ctx.attr._config_file_reader.files_to_run.executable.short_path
+
     runfiles = ctx.attr._config_file_reader.files.to_list()
+    transitive_files = (
+        properties.toolchain_info_file_list +
+        properties.jq_info_file_list +
+        configure[DefaultInfo].default_runfiles.files.to_list()
+    )
 
     variables = [
         'CLI="%s"' % properties.cli,
@@ -73,7 +79,7 @@ def _impl(ctx):
         stamp_file = ctx.actions.declare_file(ctx.attr.name + ".stamp")
         runfiles.append(stamp_file)
         fsinfo_stampfile = stamp_file
-        resolve_stamp(ctx, ctx.attr.stamp.strip(), stamp_file)
+        helpers.resolve_stamp(ctx, ctx.attr.stamp.strip(), stamp_file)
         variables.append('STAMP="$(cat %s)"' % stamp_file.short_path)
 
     fsinfo_file = []
@@ -128,9 +134,7 @@ def _impl(ctx):
         DefaultInfo(
             runfiles = ctx.runfiles(
                 files = runfiles,
-                transitive_files = depset(
-                    properties.toolchain_info_file_list + properties.jq_info_file_list,
-                ),
+                transitive_files = depset(transitive_files),
             ),
             executable = ctx.outputs.executable,
         ),

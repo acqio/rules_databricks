@@ -1,4 +1,9 @@
-def resolve_stamp(ctx, string, output):
+def _check_stamping_format(f):
+    if f.startswith("{") and f.endswith("}"):
+        return True
+    return False
+
+def _resolve_stamp(ctx, string, output):
     stamps = [ctx.info_file, ctx.version_file]
     args = ctx.actions.args()
     args.add_all(stamps, format_each = "--stamp-info-file=%s")
@@ -26,7 +31,7 @@ def resolve_config_file(ctx, config_file, profile, output):
         mnemonic = "ProfileStatus",
     )
 
-def toolchain_properties(ctx, toolchain):
+def _toolchain_properties(ctx, toolchain):
     toolchain_info = ctx.toolchains[toolchain].info
     jq_info = toolchain_info.jq_tool_target[DefaultInfo]
 
@@ -39,3 +44,9 @@ def toolchain_properties(ctx, toolchain):
         jq_tool = jq_info.files_to_run.executable.path,
         jq_info_file_list = jq_info.files.to_list(),
     )
+
+helpers = struct(
+    check_stamping_format = _check_stamping_format,
+    resolve_stamp = _resolve_stamp,
+    toolchain_properties = _toolchain_properties,
+)

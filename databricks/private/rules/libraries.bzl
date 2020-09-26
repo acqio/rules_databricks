@@ -1,7 +1,7 @@
 load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load("//databricks/private:providers/providers.bzl", "ConfigureInfo", "FsInfo")
 load("//databricks/private:common/common.bzl", "CHECK_CONFIG_FILE", "CMD_CLUSTER_INFO", "DATABRICKS_TOOLCHAIN")
-load("//databricks/private:common/helpers.bzl", "toolchain_properties")
+load("//databricks/private:common/helpers.bzl", "helpers")
 
 _common_attr = {
     "_script_tpl": attr.label(
@@ -33,14 +33,20 @@ _common_attr = {
 }
 
 def _impl(ctx):
-    properties = toolchain_properties(ctx, DATABRICKS_TOOLCHAIN)
+    properties = helpers.toolchain_properties(ctx, DATABRICKS_TOOLCHAIN)
     api_cmd = ctx.attr._command
     cmd = []
-    configure_info = ctx.attr.configure[ConfigureInfo]
+
+    configure = ctx.attr.configure
+    configure_info = configure[ConfigureInfo]
     reader_config_file = ctx.attr._config_file_reader.files_to_run.executable.short_path
 
-    transitive_files = (properties.toolchain_info_file_list + properties.jq_info_file_list)
     runfiles = ctx.attr._config_file_reader.files.to_list()
+    transitive_files = (
+        properties.toolchain_info_file_list +
+        properties.jq_info_file_list +
+        configure[DefaultInfo].default_runfiles.files.to_list()
+    )
 
     variables = [
         'CLI="%s"' % properties.cli,
