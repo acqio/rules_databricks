@@ -20,9 +20,9 @@ repository.
 """
 
 load(":py_repositories.bzl", "py_deps")
-load("//databricks/private/rules:configure.bzl", _configure = "configure_alias")
+load("//databricks/private/rules:configure.bzl", "configure_alias")
 
-databricks_configure = _configure
+dbk_configure = configure_alias
 
 def deps():
     py_deps()

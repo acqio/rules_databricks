@@ -30,15 +30,20 @@ DataBricksToolchainInfo = provider(
 )
 
 def _databricks_toolchain_impl(ctx):
-    toolchain_info = platform_common.ToolchainInfo(
-        info = DataBricksToolchainInfo(
-            config_file = ctx.attr.config_file,
-            jq_tool_target = ctx.attr.jq_tool_target,
-            tool_path = ctx.attr.tool_path,
-            tool_target = ctx.attr.tool_target,
+    return [
+        platform_common.ToolchainInfo(
+            info = DataBricksToolchainInfo(
+                config_file = ctx.attr.config_file,
+                jq_tool_target = ctx.attr.jq_tool_target,
+                tool_path = ctx.attr.tool_path,
+                tool_target = ctx.attr.tool_target,
+            ),
         ),
-    )
-    return [toolchain_info]
+        platform_common.TemplateVariableInfo({
+            "DBK_TOOL_PATH": str(ctx.attr.tool_path),
+            "DBK_TOOL_TARGET": str(ctx.attr.tool_target),
+        }),
+    ]
 
 # Rule used by the databricks toolchain rule to specify a path to the databricks
 # binary

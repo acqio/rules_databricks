@@ -16,7 +16,7 @@ This BUILD file is auto-generated from databricks/toolchain/BUILD.bazel.tpl
 """
 package(default_visibility = ["//visibility:public"])
 
-load("@rules_databricks//databricks/toolchain:toolchain.bzl", "databricks_toolchain")
+load("@rules_databricks//databricks/toolchain:toolchains.bzl", "databricks_toolchain")
 
 databricks_toolchain(
     name = "toolchain",
