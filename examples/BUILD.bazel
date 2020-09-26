@@ -1,19 +1,19 @@
-load("//:index.bzl", "databricks_configure", "databricks_fs", "databricks_libraries")
+load("@rules_databricks//databricks:defs.bzl", "dbk_configure", "dbk_fs", "dbk_libraries")
 
-databricks_configure(
+dbk_configure(
     name = "cfg",
     cluster_name = "{AZ_DEV_DF_CLUSTER_NAME}",
     profile = "{AZ_DEV_DF_CLUSTER_PROFILE}",
 )
 
-databricks_fs(
+dbk_fs(
     name = "fs",
     configure = ":cfg",
     files = ["dummy.jar"],
     stamp = "{STABLE_GIT_DATE}",
 )
 
-databricks_libraries(
+dbk_libraries(
     name = "lib",
     configure = ":cfg",
     dbfs = ":fs.cp",
