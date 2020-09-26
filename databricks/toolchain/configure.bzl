@@ -20,7 +20,7 @@ def _toolchain_configure_impl(repository_ctx):
 
     repository_ctx.template(
         "BUILD.bazel",
-        Label("@rules_databricks//toolchain/databricks:BUILD.bazel.tpl"),
+        Label("@rules_databricks//databricks/toolchain:BUILD.bazel.tpl"),
         {
             "%{CONFIG_FILE}": "%s" % config_file,
             "%{JQ_TOOL_TARGET}": "%s" % jq_tool_target,

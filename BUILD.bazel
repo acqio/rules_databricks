@@ -24,7 +24,6 @@ filegroup(
         "BUILD.bazel",
         "WORKSPACE",
         "//databricks:all_files",
-        "//toolchain:all_files",
     ],
     visibility = ["//visibility:public"],
 )

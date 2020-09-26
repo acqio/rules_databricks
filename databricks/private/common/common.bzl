@@ -1,4 +1,4 @@
-DATABRICKS_TOOLCHAIN = "@rules_databricks//toolchain/databricks:toolchain_type"
+DATABRICKS_TOOLCHAIN = "@rules_databricks//databricks/toolchain:toolchain_type"
 
 DBFS_PROPERTIES = {
     "dbfs_basepath": "dbfs:/FileStore",

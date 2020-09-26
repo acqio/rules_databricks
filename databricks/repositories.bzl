@@ -14,7 +14,7 @@
 """Rules to load all dependencies of rules_databricks."""
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
-load("//toolchain/databricks:configure.bzl", databricks_toolchain_configure = "toolchain_configure")
+load("//databricks/toolchain:configure.bzl", databricks_toolchain_configure = "toolchain_configure")
 
 def repositories():
     """Download dependencies of container rules."""
