@@ -2,8 +2,8 @@ load("//:index.bzl", "databricks_configure", "databricks_fs", "databricks_librar
 
 databricks_configure(
     name = "cfg",
-    cluster_name = "dev-cluster-dbk",
-    profile = "dev",
+    cluster_name = "{AZ_DEV_DF_CLUSTER_NAME}",
+    profile = "{AZ_DEV_DF_CLUSTER_PROFILE}",
 )
 
 databricks_fs(

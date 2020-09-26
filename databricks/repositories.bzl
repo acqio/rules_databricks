@@ -62,6 +62,7 @@ filegroup(
     ),
     visibility = ["//visibility:public"],
 )
-""")
+""",
+    )
 
     databricks_toolchain_configure(name = "databricks_config")
