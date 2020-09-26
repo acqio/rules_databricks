@@ -12,4 +12,4 @@ load("@rules_databricks//databricks:pip_repositories.bzl", databricks_pip_deps =
 
 databricks_pip_deps()
 
-register_toolchains("@rules_databricks//toolchain/databricks:default_linux_toolchain")
+register_toolchains("@rules_databricks//databricks/toolchain:default_linux_toolchain")
