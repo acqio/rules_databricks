@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 load("//databricks/private:providers/providers.bzl", "ConfigureInfo")
-load("//databricks/private:common/common.bzl", "DATABRICKS_TOOLCHAIN")
-load("//databricks/private:common/helpers.bzl", "helpers")
+load("//databricks/private/common:common.bzl", "DATABRICKS_TOOLCHAIN")
+load("//databricks/private/common:utils.bzl", "utils")
 
 def _impl(ctx):
     cluster_name = ctx.attr.cluster_name or ""
@@ -25,15 +25,15 @@ def _impl(ctx):
 
     files = []
 
-    if helpers.check_stamping_format(cluster_name):
+    if utils.check_stamping_format(cluster_name):
         cluster_name_file = ctx.actions.declare_file(ctx.label.name + ".cluster-name")
-        helpers.resolve_stamp(ctx, cluster_name, cluster_name_file)
+        utils.resolve_stamp(ctx, cluster_name, cluster_name_file)
         cluster_name = "$(cat \"%s\")" % cluster_name_file.short_path
         files.append(cluster_name_file)
 
-    if helpers.check_stamping_format(profile):
+    if utils.check_stamping_format(profile):
         profile_file = ctx.actions.declare_file(ctx.label.name + ".profile")
-        helpers.resolve_stamp(ctx, profile, profile_file)
+        utils.resolve_stamp(ctx, profile, profile_file)
         profile = "$(cat \"%s\")" % profile_file.short_path
         files.append(profile_file)
 

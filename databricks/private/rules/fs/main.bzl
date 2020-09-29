@@ -1,8 +1,8 @@
 load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load("@bazel_skylib//lib:paths.bzl", "paths")
 load("//databricks/private:providers/providers.bzl", "ConfigureInfo", "FsInfo")
-load("//databricks/private:common/common.bzl", "CHECK_CONFIG_FILE", "DATABRICKS_TOOLCHAIN", "DBFS_PROPERTIES")
-load("//databricks/private:common/helpers.bzl", "helpers")
+load("//databricks/private/common:common.bzl", "CHECK_CONFIG_FILE", "DATABRICKS_TOOLCHAIN", "DBFS_PROPERTIES")
+load("//databricks/private/common:utils.bzl", "utils")
 
 def _aspect_files(ctx):
     return struct(
@@ -14,8 +14,8 @@ def _aspect_files(ctx):
     )
 
 _common_attr = {
-    "_script_tpl": attr.label(
-        default = Label("//databricks/private/rules:script.sh.tpl"),
+    "_resolve_tpl": attr.label(
+        default = utils.resolve_tpl,
         allow_single_file = True,
     ),
     "_stamper": attr.label(
@@ -46,7 +46,7 @@ _common_attr = {
 }
 
 def _impl(ctx):
-    properties = helpers.toolchain_properties(ctx, DATABRICKS_TOOLCHAIN)
+    properties = utils.toolchain_properties(ctx, DATABRICKS_TOOLCHAIN)
     aspects = _aspect_files(ctx)
     api_cmd = ctx.attr._command
     cmd = []
@@ -79,7 +79,7 @@ def _impl(ctx):
         stamp_file = ctx.actions.declare_file(ctx.attr.name + ".stamp")
         runfiles.append(stamp_file)
         fsinfo_stampfile = stamp_file
-        helpers.resolve_stamp(ctx, ctx.attr.stamp.strip(), stamp_file)
+        utils.resolve_stamp(ctx, ctx.attr.stamp.strip(), stamp_file)
         variables.append('STAMP="$(cat %s)"' % stamp_file.short_path)
 
     fsinfo_file = []
@@ -122,7 +122,7 @@ def _impl(ctx):
     ctx.actions.expand_template(
         is_executable = True,
         output = ctx.outputs.executable,
-        template = ctx.file._script_tpl,
+        template = ctx.file._resolve_tpl,
         substitutions = {
             "%{VARIABLES}": "\n".join(variables),
             "%{CONDITIONS}": CHECK_CONFIG_FILE,
@@ -184,17 +184,11 @@ _fs_rm = rule(
 def fs(name, **kwargs):
     if "stamp" in kwargs:
         stamp = kwargs["stamp"].strip()
-        if not stamp:
-            fail("The stamp attribute cannot be an empty string.")
-
-        if not (
-            (
-                stamp.count("{") == 1 and stamp.rindex("{") == 0
-            ) and (
-                stamp.count("}") == 1 and stamp.rindex("}") == stamp.find("}")
+        if not stamp or not utils.check_stamping_format(stamp):
+            fail(
+                "The stamp attribute cannot be an empty string " +
+                "or is incorrectly formatted (eg {BUILD_TIMESTAMP}): %s" % stamp
             )
-        ):
-            fail("The stamp string is badly formatted (eg {BUILD_TIMESTAMP}): %s" % stamp)
 
     _fs_ls(name = name, **kwargs)
     _fs_ls(name = name + ".ls", **kwargs)

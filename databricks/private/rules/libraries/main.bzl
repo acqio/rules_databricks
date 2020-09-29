@@ -1,11 +1,11 @@
 load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load("//databricks/private:providers/providers.bzl", "ConfigureInfo", "FsInfo")
-load("//databricks/private:common/common.bzl", "CHECK_CONFIG_FILE", "CMD_CLUSTER_INFO", "DATABRICKS_TOOLCHAIN")
-load("//databricks/private:common/helpers.bzl", "helpers")
+load("//databricks/private/common:common.bzl", "CHECK_CONFIG_FILE", "CMD_CLUSTER_INFO", "DATABRICKS_TOOLCHAIN")
+load("//databricks/private/common:utils.bzl", "utils")
 
 _common_attr = {
-    "_script_tpl": attr.label(
-        default = Label("//databricks/private/rules:script.sh.tpl"),
+    "_resolve_tpl": attr.label(
+        default = utils.resolve_tpl,
         allow_single_file = True,
     ),
     "_config_file_reader": attr.label(
@@ -33,7 +33,7 @@ _common_attr = {
 }
 
 def _impl(ctx):
-    properties = helpers.toolchain_properties(ctx, DATABRICKS_TOOLCHAIN)
+    properties = utils.toolchain_properties(ctx, DATABRICKS_TOOLCHAIN)
     api_cmd = ctx.attr._command
     cmd = []
 
@@ -93,7 +93,7 @@ def _impl(ctx):
     ctx.actions.expand_template(
         is_executable = True,
         output = ctx.outputs.executable,
-        template = ctx.file._script_tpl,
+        template = ctx.file._resolve_tpl,
         substitutions = {
             "%{VARIABLES}": "\n".join(variables),
             "%{CONDITIONS}": CHECK_CONFIG_FILE + CMD_CLUSTER_INFO,
