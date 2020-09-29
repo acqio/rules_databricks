@@ -45,8 +45,9 @@ def _toolchain_properties(ctx, toolchain):
         jq_info_file_list = jq_info.files.to_list(),
     )
 
-helpers = struct(
+utils = struct(
     check_stamping_format = _check_stamping_format,
     resolve_stamp = _resolve_stamp,
+    resolve_tpl = Label("//databricks/private/common:resolve.sh.tpl"),
     toolchain_properties = _toolchain_properties,
 )

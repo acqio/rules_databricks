@@ -20,7 +20,7 @@ repository.
 """
 
 load(":py_repositories.bzl", "py_deps")
-load("//databricks/private/rules:configure.bzl", "configure_alias")
+load("//databricks/private/rules:configure/main.bzl", "configure_alias")
 
 dbk_configure = configure_alias
 
