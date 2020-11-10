@@ -31,9 +31,9 @@ def repositories():
     http_archive(
         name = "rules_python",
         urls = [
-            "https://github.com/bazelbuild/rules_python/releases/download/0.0.1/rules_python-0.0.1.tar.gz",
+            "https://github.com/bazelbuild/rules_python/releases/download/0.1.0/rules_python-0.1.0.tar.gz",
         ],
-        sha256 = "aa96a691d3a8177f3215b14b0edc9641787abaaa30363a080165d06ab65e1161",
+        sha256 = "b6d46438523a3ec0f3cead544190ee13223a52f6a6765a29eae7b7cc24cc83a0",
     )
 
     http_file(
@@ -48,10 +48,10 @@ def repositories():
     http_archive(
         name = "databricks_src",
         urls = [
-            "https://github.com/databricks/databricks-cli/archive/0.12.0.tar.gz",
+            "https://github.com/databricks/databricks-cli/archive/0.14.0.tar.gz",
         ],
-        sha256 = "89eadd473838be03a45635b785741e23c4a2cce9050e157f78fee04be2af0f0c",
-        strip_prefix = "databricks-cli-0.12.0",
+        sha256 = "956ee06b00a837d030983d670042e604ec69a95942f0e7eb294e4b36c48f2fda",
+        strip_prefix = "databricks-cli-0.14.0",
         build_file_content = """
 package(default_visibility = ["//visibility:public"])
 
