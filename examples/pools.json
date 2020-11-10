@@ -1,0 +1,11 @@
+{
+    "instance_pool_name": "%{INSTANCE_POOL_NAME}",
+    "min_idle_instances": 0,
+    "max_capacity": 3,
+    "node_type_id": "Standard_DS3_v2",
+    "idle_instance_autotermination_minutes": 5,
+    "enable_elastic_disk": true,
+    "preloaded_spark_versions": [
+      "6.6.x-scala2.11"
+    ]
+  }

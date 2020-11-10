@@ -18,19 +18,6 @@ def _resolve_stamp(ctx, string, output):
         mnemonic = "Stamp",
     )
 
-def resolve_config_file(ctx, config_file, profile, output):
-    args = ctx.actions.args()
-    args.add(config_file, format = "--config_file=%s")
-    args.add(profile, format = "--profile=%s")
-    args.add(output, format = "--output=%s")
-    ctx.actions.run(
-        executable = ctx.executable._reading_from_file,
-        arguments = [args],
-        tools = [ctx.executable._reading_from_file],
-        outputs = [output],
-        mnemonic = "ProfileStatus",
-    )
-
 def _toolchain_properties(ctx, toolchain):
     toolchain_info = ctx.toolchains[toolchain].info
     jq_info = toolchain_info.jq_tool_target[DefaultInfo]
