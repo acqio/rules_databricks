@@ -23,3 +23,14 @@ fi
 CLUSTER_ID=$(echo ${CLUSTER_INFO} | ${JQ_TOOL} -r .cluster_id)
 DEFAULT_OPTIONS="${DEFAULT_OPTIONS} --cluster-id ${CLUSTER_ID}"
 """
+
+CMD_INSTANCE_POOL_INFO = """
+INSTANCE_POOL_NAME=$(${JQ_TOOL} -r .instance_pool_name <<< ${INSTANCE_POOL_JSONFILE_TEMPLATE})
+INSTANCE_POOL_INFO=$(\
+${JQ_TOOL} -r \'(.instance_pools[] | select (.instance_pool_name=="\'${INSTANCE_POOL_NAME}\'" | .))\' \
+<<< $(${CLI} instance-pools list ${DEFAULT_OPTIONS} --output JSON))
+"""
+
+CMD_INSTANCE_POOL_ID = """
+INSTANCE_POOL_ID=$(${JQ_TOOL} -r .instance_pool_id <<< ${INSTANCE_POOL_INFO})
+"""
