@@ -2,7 +2,7 @@
 ## dbk_instance_pools
 
 ```python
-dbk_instance_pools(name, configure, json_file, substitutions)
+dbk_instance_pools(name, configure, template, substitutions)
 ```
 
 For example, if the BUILD file contains:
@@ -12,7 +12,7 @@ For example, if the BUILD file contains:
 dbk_instance_pools(
   name = "pools"
   configure = ":cfg",
-  json_file = ":example.json",
+  template = ":example.json",
   substitutions = {},
 )
 ```
@@ -45,7 +45,7 @@ dbk_instance_pools(
       </td>
     </tr>
     <tr>
-      <td><code>json_file</code></td>
+      <td><code>template</code></td>
       <td>
         <code>json file; required</code>
         <p>File containing JSON request to POST to /api/2.0/cluster-pools/create</p>
@@ -56,14 +56,6 @@ dbk_instance_pools(
       <td>
         <p><code>string_dict, optional</code></p>
         <p>Substitutions to make when expanding the template.</p>
-        <p>Follows the same rules as
-          <a href="https://docs.bazel.build/versions/master/skylark/lib/actions.html#expand_template">expand_template</a>
-          Values are <a href="https://docs.bazel.build/versions/master/be/make-variables.html">"make variable substituted."</a>
-          You can also use the Bazel command line option <code>--define</code>
-          to define your own custom variables.
-        </p>
-        <p>Any stamp variables are also replaced with their values. This is done
-        after make variable substitution.</p>
       </td>
     </tr>
     <tr>
@@ -77,12 +69,12 @@ target from the example above.
 
 ### Resolve
 
-You can "resolve" your `json_file` by running:
+You can "resolve" your `template` by running:
 ```shell
 bazel run :pools.resolve
 ```
 
-The resolved `json_file` will be printed to `STDOUT`.
+The resolved `template` will be printed to `STDOUT`.
 
 ### Get
 
