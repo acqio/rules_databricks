@@ -22,7 +22,7 @@ dbk_libraries(
 dbk_instance_pools(
     name = "pools",
     configure = ":cfg",
-    json_file = "pools.json",
+    template = "pools.json",
     substitutions = {
         "%{INSTANCE_POOL_NAME}": "instance_pool_test",
     },

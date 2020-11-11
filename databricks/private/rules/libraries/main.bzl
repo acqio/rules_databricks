@@ -24,10 +24,11 @@ def _impl(ctx):
         configure[DefaultInfo].default_runfiles.files.to_list()
     )
 
-    cluster_name = ctx.attr.cluster_name
-    if not cluster_name.strip():
+    if not ctx.attr.cluster_name.strip():
         fail("The cluster name value is mandatory.")
 
+    cluster_name = ctx.attr.cluster_name
+    cluster_name = ctx.expand_make_variables("cluster_name", cluster_name, {})
     if utils.check_stamping_format(cluster_name):
         cluster_name_file = ctx.actions.declare_file(ctx.label.name + ".cluster-name")
         utils.resolve_stamp(ctx, cluster_name, cluster_name_file)

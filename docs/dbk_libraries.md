@@ -51,7 +51,7 @@ dbk_libraries(
         <code>String, required</code>
         <p>The name of the databricks cluster where operations can be performed.</p>
         <p><code>cluster_name = "FOO"</code></p>
-        <p>This field supports stamp variables.</p>
+        <p>Subject to "Make" variable substitution.</p>
       </td>
     </tr>
     <tr>

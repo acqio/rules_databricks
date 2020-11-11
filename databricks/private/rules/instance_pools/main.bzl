@@ -37,7 +37,7 @@ def _impl(ctx):
     substitutions_file = ctx.actions.declare_file(ctx.label.name + ".substitutions.json")
 
     ctx.actions.expand_template(
-        template = ctx.file.json_file,
+        template = ctx.file.template,
         output = substitutions_file,
         substitutions = ctx.attr.substitutions,
     )
@@ -98,7 +98,7 @@ _common_attr = {
         mandatory = True,
         providers = [ConfigureInfo],
     ),
-    "json_file": attr.label(
+    "template": attr.label(
         mandatory = True,
         allow_single_file = [".json"],
     ),
