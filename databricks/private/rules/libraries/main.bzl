@@ -1,36 +1,22 @@
-load("@bazel_skylib//lib:dicts.bzl", "dicts")
-load("//databricks/private:providers/providers.bzl", "ConfigureInfo", "FsInfo")
-load("//databricks/private/common:common.bzl", "CHECK_CONFIG_FILE", "CMD_CLUSTER_INFO", "DATABRICKS_TOOLCHAIN")
-load("//databricks/private/common:utils.bzl", "utils")
-
-_common_attr = {
-    "_resolve_tpl": attr.label(
-        default = utils.resolve_tpl,
-        allow_single_file = True,
-    ),
-    "_config_file_reader": attr.label(
-        default = Label("//databricks/private/cmd/config_file_reader:main"),
-        executable = True,
-        cfg = "host",
-    ),
-    "_api": attr.string(
-        default = "libraries",
-    ),
-    "configure": attr.label(
-        mandatory = True,
-        providers = [ConfigureInfo],
-    ),
-    "dbfs": attr.label(
-        mandatory = False,
-        providers = [FsInfo],
-    ),
-    "maven_info": attr.string_list_dict(
-        mandatory = False,
-    ),
-    "maven_package_exclusion": attr.string_list_dict(
-        mandatory = False,
-    ),
-}
+load(
+    "//databricks/private/common:common.bzl",
+    "CHECK_CONFIG_FILE",
+    "CMD_CLUSTER_INFO",
+    "DATABRICKS_TOOLCHAIN",
+)
+load(
+    "//databricks/private/common:utils.bzl",
+    "utils",
+)
+load(
+    "//databricks/private:providers/providers.bzl",
+    "ConfigureInfo",
+    "FsInfo",
+)
+load(
+    "@bazel_skylib//lib:dicts.bzl",
+    "dicts",
+)
 
 def _impl(ctx):
     properties = utils.toolchain_properties(ctx, DATABRICKS_TOOLCHAIN)
@@ -48,9 +34,19 @@ def _impl(ctx):
         configure[DefaultInfo].default_runfiles.files.to_list()
     )
 
+    cluster_name = ctx.attr.cluster_name
+    if not cluster_name.strip():
+        fail("The cluster name value is mandatory.")
+
+    if utils.check_stamping_format(cluster_name):
+        cluster_name_file = ctx.actions.declare_file(ctx.label.name + ".cluster-name")
+        utils.resolve_stamp(ctx, cluster_name, cluster_name_file)
+        cluster_name = "$(cat %s)" % cluster_name_file.short_path
+        transitive_files.append(cluster_name_file)
+
     variables = [
         'CLI="%s"' % properties.cli,
-        'CLUSTER_NAME="%s"' % configure_info.cluster_name,
+        'CLUSTER_NAME="%s"' % cluster_name,
         'CMD="%s %s $@"' % (ctx.attr._api, api_cmd),
         'export DATABRICKS_CONFIG_FILE="%s"' % configure_info.config_file,
         'DEFAULT_OPTIONS="--profile %s"' % configure_info.profile,
@@ -109,6 +105,43 @@ def _impl(ctx):
             ),
         ),
     ]
+
+_common_attr = {
+    "_config_file_reader": attr.label(
+        default = Label("//databricks/private/cmd/config_file_reader:main"),
+        executable = True,
+        cfg = "host",
+    ),
+    "_resolve_tpl": attr.label(
+        default = utils.resolve_tpl,
+        allow_single_file = True,
+    ),
+    "_stamper": attr.label(
+        default = Label("//databricks/private/cmd/stamper:stamper"),
+        executable = True,
+        cfg = "host",
+    ),
+    "_api": attr.string(
+        default = "libraries",
+    ),
+    "cluster_name": attr.string(
+        mandatory = True,
+    ),
+    "configure": attr.label(
+        mandatory = True,
+        providers = [ConfigureInfo],
+    ),
+    "dbfs": attr.label(
+        mandatory = False,
+        providers = [FsInfo],
+    ),
+    "maven_info": attr.string_list_dict(
+        mandatory = False,
+    ),
+    "maven_package_exclusion": attr.string_list_dict(
+        mandatory = False,
+    ),
+}
 
 _libraries_status = rule(
     implementation = _impl,

@@ -64,7 +64,6 @@ def _impl(ctx):
 
     variables = [
         'CLI="%s"' % properties.cli,
-        'CLUSTER_NAME="%s"' % configure_info.cluster_name,
         'CMD="%s %s $@"' % (ctx.attr._api, api_cmd),
         'export DATABRICKS_CONFIG_FILE="%s"' % configure_info.config_file,
         'DEFAULT_OPTIONS="--profile %s"' % configure_info.profile,
@@ -187,7 +186,7 @@ def fs(name, **kwargs):
         if not stamp or not utils.check_stamping_format(stamp):
             fail(
                 "The stamp attribute cannot be an empty string " +
-                "or is incorrectly formatted (eg {BUILD_TIMESTAMP}): %s" % stamp
+                "or is incorrectly formatted (eg {BUILD_TIMESTAMP}): %s" % stamp,
             )
 
     _fs_ls(name = name, **kwargs)

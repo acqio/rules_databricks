@@ -2,7 +2,7 @@
 ## dbk_libraries
 
 ```python
-dbk_libraries(name, configure, dbfs, maven_info, maven_package_exclusion)
+dbk_libraries(name, cluster_name, configure, dbfs, maven_info, maven_package_exclusion)
 ```
 
 For example, if the BUILD file contains:
@@ -10,19 +10,20 @@ For example, if the BUILD file contains:
 ```python
 
 dbk_libraries(
-  name = "lib"
-  configure = ":cfg",
-  dbfs = ":src.cp",
-  maven_info = {
-      "https://repo.maven.apache.org/maven2/" : [
-        "GroupId:ArtifactId:Version"
-      ]
-  },
-  maven_package_exclusion = {
-      "GroupId:ArtifactId:Version" : [
-        "foo:bar"
-      ]
-  },
+    name = "lib"
+    cluster_name = "test",
+    configure = ":cfg",
+    dbfs = ":src.cp",
+    maven_info = {
+        "https://repo.maven.apache.org/maven2/" : [
+          "GroupId:ArtifactId:Version"
+        ]
+    },
+    maven_package_exclusion = {
+        "GroupId:ArtifactId:Version" : [
+          "foo:bar"
+        ]
+    },
 )
 ```
 
@@ -42,6 +43,15 @@ dbk_libraries(
       <td>
         <code>Name, required</code>
         <p>A unique name for this rule.</p>
+      </td>
+    </tr>
+    <tr>
+      <td><code>cluster_name</code></td>
+      <td>
+        <code>String, required</code>
+        <p>The name of the databricks cluster where operations can be performed.</p>
+        <p><code>cluster_name = "FOO"</code></p>
+        <p>This field supports stamp variables.</p>
       </td>
     </tr>
     <tr>
