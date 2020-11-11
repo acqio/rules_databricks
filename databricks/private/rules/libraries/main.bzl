@@ -4,19 +4,9 @@ load(
     "CMD_CLUSTER_INFO",
     "DATABRICKS_TOOLCHAIN",
 )
-load(
-    "//databricks/private/common:utils.bzl",
-    "utils",
-)
-load(
-    "//databricks/private:providers/providers.bzl",
-    "ConfigureInfo",
-    "FsInfo",
-)
-load(
-    "@bazel_skylib//lib:dicts.bzl",
-    "dicts",
-)
+load("//databricks/private/common:utils.bzl", "utils")
+load("//databricks/private:providers/providers.bzl", "ConfigureInfo", "FsInfo")
+load("@bazel_skylib//lib:dicts.bzl", "dicts")
 
 def _impl(ctx):
     properties = utils.toolchain_properties(ctx, DATABRICKS_TOOLCHAIN)
@@ -47,7 +37,7 @@ def _impl(ctx):
     variables = [
         'CLI="%s"' % properties.cli,
         'CLUSTER_NAME="%s"' % cluster_name,
-        'CMD="%s %s $@"' % (ctx.attr._api, api_cmd),
+        'CMD="%s %s"' % (ctx.attr._api, api_cmd),
         'export DATABRICKS_CONFIG_FILE="%s"' % configure_info.config_file,
         'DEFAULT_OPTIONS="--profile %s"' % configure_info.profile,
         'JQ_TOOL="%s"' % properties.jq_tool,
@@ -67,7 +57,7 @@ def _impl(ctx):
             variables += ["STAMP=$(cat %s)" % dbfs[FsInfo].stamp_file.short_path]
 
         if api_cmd == "install":
-            cmd += ["'%s' $@" % dbfs[DefaultInfo].files_to_run.executable.short_path]
+            cmd += ["'%s'" % dbfs[DefaultInfo].files_to_run.executable.short_path]
 
         cmd += [cmd_template.format(OPTIONS = "--jar %s" % f) for f in dbfs[FsInfo].dbfs_files_path]
 
@@ -107,6 +97,9 @@ def _impl(ctx):
     ]
 
 _common_attr = {
+    "_api": attr.string(
+        default = "libraries",
+    ),
     "_config_file_reader": attr.label(
         default = Label("//databricks/private/cmd/config_file_reader:main"),
         executable = True,
@@ -120,9 +113,6 @@ _common_attr = {
         default = Label("//databricks/private/cmd/stamper:stamper"),
         executable = True,
         cfg = "host",
-    ),
-    "_api": attr.string(
-        default = "libraries",
     ),
     "cluster_name": attr.string(
         mandatory = True,

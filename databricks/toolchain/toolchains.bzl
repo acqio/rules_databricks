@@ -1,16 +1,3 @@
-# Copyright 2017 The Bazel Authors. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 """
 This module defines azure toolchain rules
 """
@@ -50,11 +37,6 @@ def _databricks_toolchain_impl(ctx):
 databricks_toolchain = rule(
     implementation = _databricks_toolchain_impl,
     attrs = {
-        "jq_tool_target": attr.label(
-            doc = "Target to build jq from source.",
-            executable = True,
-            cfg = "host",
-        ),
         "config_file": attr.string(
             default = "",
             doc = """A configured path to the Databricks configuration file.
@@ -62,6 +44,11 @@ databricks_toolchain = rule(
                   of the DATABRICKS_CONFIG_FILE environment variable will be used.
                   DATABRICKS_CONFIG_FILE is not defined, the default set for the
                   databricks tool (typically, the home directory) will be used.""",
+        ),
+        "jq_tool_target": attr.label(
+            doc = "Target to build jq from source.",
+            executable = True,
+            cfg = "host",
         ),
         "tool_path": attr.string(
             doc = "Path to the binary.",

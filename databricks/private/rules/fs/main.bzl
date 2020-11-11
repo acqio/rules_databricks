@@ -1,8 +1,13 @@
+load(
+    "//databricks/private/common:common.bzl",
+    "CHECK_CONFIG_FILE",
+    "DATABRICKS_TOOLCHAIN",
+    "DBFS_PROPERTIES",
+)
+load("//databricks/private/common:utils.bzl", "utils")
+load("//databricks/private:providers/providers.bzl", "ConfigureInfo", "FsInfo")
 load("@bazel_skylib//lib:dicts.bzl", "dicts")
 load("@bazel_skylib//lib:paths.bzl", "paths")
-load("//databricks/private:providers/providers.bzl", "ConfigureInfo", "FsInfo")
-load("//databricks/private/common:common.bzl", "CHECK_CONFIG_FILE", "DATABRICKS_TOOLCHAIN", "DBFS_PROPERTIES")
-load("//databricks/private/common:utils.bzl", "utils")
 
 def _aspect_files(ctx):
     return struct(
@@ -12,38 +17,6 @@ def _aspect_files(ctx):
             DBFS_PROPERTIES["dbfs_prefix_filepath"],
         ),
     )
-
-_common_attr = {
-    "_resolve_tpl": attr.label(
-        default = utils.resolve_tpl,
-        allow_single_file = True,
-    ),
-    "_stamper": attr.label(
-        default = Label("//databricks/private/cmd/stamper:stamper"),
-        executable = True,
-        cfg = "host",
-    ),
-    "_config_file_reader": attr.label(
-        default = Label("//databricks/private/cmd/config_file_reader:main"),
-        executable = True,
-        cfg = "host",
-    ),
-    "_api": attr.string(
-        default = "fs",
-    ),
-    "configure": attr.label(
-        mandatory = True,
-        providers = [ConfigureInfo],
-    ),
-    "files": attr.label_list(
-        mandatory = True,
-        allow_files = [".jar", ".py", ".sh"],
-        allow_empty = False,
-    ),
-    "stamp": attr.string(
-        default = "",
-    ),
-}
 
 def _impl(ctx):
     properties = utils.toolchain_properties(ctx, DATABRICKS_TOOLCHAIN)
@@ -64,7 +37,7 @@ def _impl(ctx):
 
     variables = [
         'CLI="%s"' % properties.cli,
-        'CMD="%s %s $@"' % (ctx.attr._api, api_cmd),
+        'CMD="%s %s"' % (ctx.attr._api, api_cmd),
         'export DATABRICKS_CONFIG_FILE="%s"' % configure_info.config_file,
         'DEFAULT_OPTIONS="--profile %s"' % configure_info.profile,
         'JQ_TOOL="%s"' % properties.jq_tool,
@@ -143,6 +116,38 @@ def _impl(ctx):
             stamp_file = fsinfo_stampfile,
         ),
     ]
+
+_common_attr = {
+    "_api": attr.string(
+        default = "libraries",
+    ),
+    "_config_file_reader": attr.label(
+        default = Label("//databricks/private/cmd/config_file_reader:main"),
+        executable = True,
+        cfg = "host",
+    ),
+    "_resolve_tpl": attr.label(
+        default = utils.resolve_tpl,
+        allow_single_file = True,
+    ),
+    "_stamper": attr.label(
+        default = Label("//databricks/private/cmd/stamper:stamper"),
+        executable = True,
+        cfg = "host",
+    ),
+    "configure": attr.label(
+        mandatory = True,
+        providers = [ConfigureInfo],
+    ),
+    "files": attr.label_list(
+        mandatory = True,
+        allow_files = [".jar", ".py", ".sh"],
+        allow_empty = False,
+    ),
+    "stamp": attr.string(
+        default = "",
+    ),
+}
 
 _fs_ls = rule(
     executable = True,
