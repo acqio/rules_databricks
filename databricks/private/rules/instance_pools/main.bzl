@@ -50,15 +50,15 @@ def _impl(ctx):
 
     substitutions_contitions = CHECK_CONFIG_FILE
     if api_cmd in ["create", "edit"]:
-        cmd.append("${CLI} ${CMD} ${DEFAULT_OPTIONS} --json-file %s" % (substitutions_file.short_path))
+        cmd.append("exe ${CLI} ${CMD} ${DEFAULT_OPTIONS} --json-file %s" % (substitutions_file.short_path))
     elif api_cmd in ["get"]:
         substitutions_contitions += CMD_INSTANCE_POOL_INFO
-        cmd.append("${JQ_TOOL} -M . <<< ${INSTANCE_POOL_INFO}")
+        cmd.append("exe ${JQ_TOOL} -M . <<< ${INSTANCE_POOL_INFO}")
     elif api_cmd in ["delete"]:
         substitutions_contitions += (CMD_INSTANCE_POOL_INFO + CMD_INSTANCE_POOL_ID)
-        cmd.append("${CLI} ${CMD} ${DEFAULT_OPTIONS} --instance-pool-id ${INSTANCE_POOL_ID}")
+        cmd.append("exe ${CLI} ${CMD} ${DEFAULT_OPTIONS} --instance-pool-id ${INSTANCE_POOL_ID}")
     else:
-        cmd.append('${JQ_TOOL} -M . "%s"' % substitutions_file.short_path)
+        cmd.append('exe ${JQ_TOOL} -M . "%s"' % substitutions_file.short_path)
 
     ctx.actions.expand_template(
         is_executable = True,
@@ -82,17 +82,17 @@ def _impl(ctx):
     ]
 
 _common_attr = {
-    "_resolve_tpl": attr.label(
-        default = utils.resolve_tpl,
-        allow_single_file = True,
+    "_api": attr.string(
+        default = "instance-pools",
     ),
     "_config_file_reader": attr.label(
         default = Label("//databricks/private/cmd/config_file_reader:main"),
         executable = True,
         cfg = "host",
     ),
-    "_api": attr.string(
-        default = "instance-pools",
+    "_resolve_tpl": attr.label(
+        default = utils.resolve_tpl,
+        allow_single_file = True,
     ),
     "configure": attr.label(
         mandatory = True,
