@@ -1,15 +1,15 @@
-<a name="dbk_libraries.md"></a>
-## dbk_libraries.md
+<a name="dbk_libraries"></a>
+## dbk_libraries
 
 ```python
-dbk_libraries.md(name, configure, dbfs, maven_info, maven_package_exclusion)
+dbk_libraries(name, configure, dbfs, maven_info, maven_package_exclusion)
 ```
 
 For example, if the BUILD file contains:
 
 ```python
 
-dbk_libraries.md(
+dbk_libraries(
   name = "lib"
   configure = ":cfg",
   dbfs = ":src.cp",
@@ -92,7 +92,7 @@ dbk_libraries.md(
 
 ## Usage
 
-The `dbk_libraries.md` rules expose a collection of actions. We will follow the `:lib`
+The `dbk_libraries` rules expose a collection of actions. We will follow the `:lib`
 target from the example above.
 
 ### Status
