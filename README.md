@@ -35,10 +35,6 @@ load("@rules_databricks//databricks:deps.bzl", databricks_deps = "deps")
 
 databricks_deps()
 
-load("@rules_databricks//databricks:pip_repositories.bzl", databricks_pip_deps = "pip_deps")
-
-databricks_pip_deps()
-
 register_toolchains("@rules_databricks//databricks/toolchain:default_linux_toolchain")
 ```
 
@@ -72,6 +68,7 @@ To test that your authentication information is working, try a quick test like `
 
 * [dbk_configure](docs/dbk_configure.md)
 * [dbk_fs](docs/dbk_fs.md)
+* [dbk_instance_pools](docs/dbk_instance_pools.md)
 * [dbk_libraries](docs/dbk_libraries.md)
 
 # Things that don't work yet
