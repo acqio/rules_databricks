@@ -1,8 +1,7 @@
-load("@rules_databricks//databricks:defs.bzl", "dbk_configure", "dbk_fs", "dbk_libraries", "dbk_instance_pools")
+load("@rules_databricks//databricks:defs.bzl", "dbk_configure", "dbk_fs", "dbk_instance_pools", "dbk_libraries")
 
 dbk_configure(
     name = "cfg",
-    cluster_name = "{STABLE_AZ_DEV_DF_CLUSTER_NAME}",
     profile = "{STABLE_AZ_DEV_DF_CLUSTER_PROFILE}",
 )
 
@@ -15,6 +14,7 @@ dbk_fs(
 
 dbk_libraries(
     name = "lib",
+    cluster_name = "{STABLE_AZ_DEV_DF_CLUSTER_NAME}",
     configure = ":cfg",
     dbfs = ":fs.cp",
 )
@@ -24,6 +24,6 @@ dbk_instance_pools(
     configure = ":cfg",
     json_file = "pools.json",
     substitutions = {
-        "%{INSTANCE_POOL_NAME}": "instance_pool_test"
-    }
+        "%{INSTANCE_POOL_NAME}": "instance_pool_test",
+    },
 )

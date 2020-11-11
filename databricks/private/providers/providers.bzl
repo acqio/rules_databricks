@@ -1,7 +1,6 @@
 ConfigureInfo = provider(
     fields = [
         "profile",
-        "cluster_name",
         "config_file",
     ],
 )

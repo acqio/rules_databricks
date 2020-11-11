@@ -2,7 +2,7 @@
 ## dbk_configure
 
 ```python
-dbk_configure(name, cluster_name, profile)
+dbk_configure(name, profile)
 ```
 
 For example, if the BUILD file contains:
@@ -11,7 +11,6 @@ For example, if the BUILD file contains:
 
 dbk_configure(
   name = "cfg"
-  cluster_name = "test",
   profile = "DEFAULT",
 )
 ```
@@ -32,15 +31,6 @@ dbk_configure(
       <td>
         <code>Name, required</code>
         <p>A unique name for this rule.</p>
-      </td>
-    </tr>
-    <tr>
-      <td><code>cluster_name</code></td>
-      <td>
-        <code>String, required</code>
-        <p>The name of the databricks cluster where operations can be performed.</p>
-        <p><code>cluster_name = "FOO"</code></p>
-        <p>This field supports stamp variables.</p>
       </td>
     </tr>
     <tr>
