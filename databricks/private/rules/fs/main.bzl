@@ -78,7 +78,7 @@ def _impl(ctx):
         OPTIONS = ""
         ARGS = ""
 
-        if api_cmd == "ls":
+        if api_cmd == "list":
             OPTIONS = "-l --absolute"
             ARGS = "%s" % (dbfs_filepath)
 
@@ -119,7 +119,7 @@ def _impl(ctx):
 
 _common_attr = {
     "_api": attr.string(
-        default = "libraries",
+        default = "fs",
     ),
     "_config_file_reader": attr.label(
         default = Label("//databricks/private/cmd/config_file_reader:main"),
